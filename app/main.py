@@ -15,8 +15,6 @@ import logging
 
 logger = getLogger(__name__)
 logger.setLevel(logging.INFO)
-logger.info("info test")
-logger.error("error test")
 
 # Gemini APIの設定
 genai.configure(api_key=os.environ['GEMINI_TOKEN'])
@@ -59,8 +57,7 @@ tree = app_commands.CommandTree(client)
 @client.event
 async def on_ready():
     await tree.sync()
-    logger.error('{0.user} がログインしたよ_error'.format(client))
-    logger.info('{0.user} がログインしたよ'.format(client))
+    logger.error('{0.user} がログインしたよ'.format(client))
 
 
 #履歴をリセット
@@ -105,7 +102,7 @@ async def reset_prompt(interaction: discord.Interaction):
     await interaction.response.defer()
     nomal_prompts[interaction.guild_id] = []
     await interaction.followup.send("命令をリセットしました。")
-    logger.info("命令リセット\n\n")
+    logger.error("命令リセット\n\n")
 
 
 #プロンプトを追加
@@ -117,7 +114,7 @@ async def add_prompt(interaction: discord.Interaction, prompt: str):
         nomal_prompts[guild_id] = []
     nomal_prompts[guild_id].append(prompt)
     await interaction.followup.send(f"命令\n「{prompt}」\nを追加しました。")
-    logger.info("命令追加\n\n")
+    logger.error("命令追加\n\n")
 
 
 #プロンプトを見る
@@ -136,7 +133,7 @@ async def delete_prompt(interaction: discord.Interaction, index: int):
     try:
         prompt = nomal_prompts[interaction.guild_id].pop(index)
         await interaction.followup.send(f"命令\n「{prompt}」\nを削除しました。")
-        logger.info("命令削除\n\n")
+        logger.error("命令削除\n\n")
     except Exception as e:
         await interaction.followup.send(str(type(e)) + "が発生しました。")
 
@@ -160,7 +157,7 @@ async def set_config(interaction: discord.Interaction,
         history=nomal_AIs[guild_id].history)
     await interaction.followup.send(
         f"コンフィグを\ntemperature : {temperature}\nに設定しました。")
-    logger.info("コンフィグ変更\n\n")
+    logger.error("コンフィグ変更\n\n")
 
 
 #コンフィグを見る
@@ -221,13 +218,13 @@ async def return_flash_answer(interaction: discord.Interaction, text: str):
 async def return_image_answer(interaction: discord.Interaction,
                                 image: discord.Attachment,
                                 text: str = ""):
-    logger.info("質問受付")
+    logger.error("質問受付")
     await interaction.response.defer()
     name = interaction.user.display_name
     text = "日本語で回答して。" + text
     embed = None
     try:
-        logger.info("質問 : " + text)
+        logger.error("質問 : " + text)
         embed = discord.Embed(title="画像", color=0xff0000)
         embed.set_image(url=image.url)
 
@@ -238,14 +235,14 @@ async def return_image_answer(interaction: discord.Interaction,
     except genai.types.StopCandidateException as e:
         result = form_question(name, text) + str(e) + " により回答不能です。"
     except Exception as e:
-        logger.info(e)
+        logger.error(e)
         result = form_question(name, text) + str(type(e)) + "が発生しました。"
 
     if embed is None:
         await interaction.followup.send(result)
     else:
         await interaction.followup.send(result, embed=embed)
-    logger.info("回答完了\n\n")
+    logger.error("回答完了\n\n")
 
 # Koyeb用 サーバー立ち上げ
 server_thread()
@@ -258,8 +255,8 @@ try:
     client.run(bot_token)
 except discord.HTTPException as e:
     if e.status == 429:
-        logger.info("レート上限だよ")
+        logger.error("レート上限だよ")
     elif e.status == 400:
-        logger.info("送ろうとした文が2000文字を超えてたよ")
+        logger.error("送ろうとした文が2000文字を超えてたよ")
     else:
         raise e
