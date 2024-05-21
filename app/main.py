@@ -11,7 +11,10 @@ from PIL import Image
 from tools import form_question, return_answer, init_AI, reset_history
 
 from logging import getLogger
+import logging
+
 logger = getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Gemini APIの設定
 genai.configure(api_key=os.environ['GEMINI_TOKEN'])
@@ -54,6 +57,7 @@ tree = app_commands.CommandTree(client)
 @client.event
 async def on_ready():
     await tree.sync()
+    logger.error('{0.user} がログインしたよ'.format(client))
     logger.info('{0.user} がログインしたよ'.format(client))
 
 
