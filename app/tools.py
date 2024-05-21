@@ -27,8 +27,8 @@ async def return_answer(interaction, text, model, AIs, prompts, configs,
     guild_id = interaction.guild_id
     init_AI(guild_id, model, AIs, prompts, configs, default_config)
     ai = AIs[guild_id]
-    logger.info("質問受付")
-    logger.info("質問 : " + text)
+    logger.error("質問受付")
+    logger.error("質問 : " + text)
 
     name = interaction.user.display_name
     i = 0
@@ -49,14 +49,14 @@ async def return_answer(interaction, text, model, AIs, prompts, configs,
         except genai.types.StopCandidateException as e:
             result = form_question(name, text) + str(e) + " により回答不能です。"
         except Exception as e:
-            logger.info(e)
+            logger.error(e)
             result = form_question(name, text) + str(type(e)) + "が発生しました。"
-            logger.info("result : " + str(len(result)) + "文字")
+            logger.error("result : " + str(len(result)) + "文字")
     return result
-logger.info("回答完了\n\n")
+logger.error("回答完了\n\n")
 
 
 # 記憶リセット
 async def reset_history(interaction, model, AIs, name):
     AIs[interaction.guild_id] = model.start_chat(history=[])
-    logger.info(name + "モデル記憶リセット\n\n")
+    logger.error(name + "モデル記憶リセット\n\n")
