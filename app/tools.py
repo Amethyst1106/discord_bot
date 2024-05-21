@@ -1,6 +1,7 @@
 ﻿from discord import integrations
 import google.generativeai as genai
-
+from logging import getLogger
+logger = getLogger(__name__)
 
 # 質問の整形
 def form_question(name, text):
@@ -19,13 +20,12 @@ def init_AI(guild_id, model, AIs, prompts, configs, default_config):
 # 回答
 async def return_answer(interaction, text, model, AIs, prompts, configs,
                         default_config):
-    await interaction.response.defer()
     # チャンネルにAIがなければ作る
     guild_id = interaction.guild_id
     init_AI(guild_id, model, AIs, prompts, configs, default_config)
     ai = AIs[guild_id]
-    print("質問受付")
-    print("質問 : " + text)
+    logger.info("質問受付")
+    logger.info("質問 : " + text)
 
     name = interaction.user.display_name
     i = 0
@@ -46,16 +46,14 @@ async def return_answer(interaction, text, model, AIs, prompts, configs,
         except genai.types.StopCandidateException as e:
             result = form_question(name, text) + str(e) + " により回答不能です。"
         except Exception as e:
-            print(e)
+            logger.info(e)
             result = form_question(name, text) + str(type(e)) + "が発生しました。"
-            print("result : " + str(len(result)) + "文字")
-    await interaction.followup.send(result)
-print("回答完了\n\n")
+            logger.info("result : " + str(len(result)) + "文字")
+    return result
+logger.info("回答完了\n\n")
 
 
 # 記憶リセット
 async def reset_history(interaction, model, AIs, name):
-    await interaction.response.defer()
     AIs[interaction.guild_id] = model.start_chat(history=[])
-    await interaction.followup.send(name + "モデルの記憶をリセットしました。")
-    print(name + "モデル記憶リセット\n\n")
+    logger.info(name + "モデル記憶リセット\n\n")
