@@ -53,7 +53,6 @@ async def return_answer(interaction, text, model, AIs, prompts, configs,
             result = form_question(name, text) + str(type(e)) + "が発生しました。"
             logger.error("result : " + str(len(result)) + "文字")
     return result
-logger.error("回答完了\n\n")
 
 
 # 記憶リセット
