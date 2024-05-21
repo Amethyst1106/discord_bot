@@ -1,5 +1,6 @@
 ﻿import os
 from io import BytesIO
+from server import server_thread
 
 import discord
 import google.generativeai as genai
@@ -222,6 +223,8 @@ async def return_image_answer(interaction: discord.Interaction,
         await interaction.followup.send(result, embed=embed)
     print("回答完了\n\n")
 
+# Koyeb用 サーバー立ち上げ
+server_thread()
 
 # botの作動
 try:
