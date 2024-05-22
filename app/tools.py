@@ -51,7 +51,7 @@ async def return_answer(interaction, text, model, AIs, prompts, configs,
         except Exception as e:
             logger.error(e)
             result = form_question(name, text) + str(type(e)) + "が発生しました。"
-            logger.error("result : " + str(len(result)) + "文字")
+        logger.error("result : " + str(len(result)) + "文字")
     return result
 
 

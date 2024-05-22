@@ -183,7 +183,7 @@ async def return_nomal_answer(interaction: discord.Interaction, text: str):
                         configs=nomal_configs,
                         default_config=default_config)
     await interaction.followup.send(result)
-    logger.error("回答完了\n\n")
+    logger.error("回答完了\n")
 
 
 #新モデルの回答
@@ -198,7 +198,7 @@ async def return_super_answer(interaction: discord.Interaction, text: str):
                         configs=super_configs,
                         default_config=default_config)
     await interaction.followup.send(result)
-    logger.error("回答完了\n\n")
+    logger.error("回答完了\n")
 
 
 #高速モデルの回答
@@ -213,7 +213,7 @@ async def return_flash_answer(interaction: discord.Interaction, text: str):
                         configs=flash_configs,
                         default_config=default_config)
     await interaction.followup.send(result)
-    logger.error("回答完了\n\n")
+    logger.error("回答完了\n")
 
 
 # 画像モデルの回答
@@ -245,7 +245,7 @@ async def return_image_answer(interaction: discord.Interaction,
         await interaction.followup.send(result)
     else:
         await interaction.followup.send(result, embed=embed)
-    logger.error("回答完了\n\n")
+    logger.error("回答完了\n")
 
 # Koyeb用 サーバー立ち上げ
 server_thread()
