@@ -44,6 +44,7 @@ async def return_answer(interaction, text, model, AIs, prompts, configs,
 
             if len(result) > 2000:
                 i += 100
+                logger.error("文字数超過 : " + str(len(result)) + "文字")
                 result = ""  # 2000文字超えるとdiscord側のエラーになるので再トライ
 
         except genai.types.StopCandidateException as e:
@@ -51,7 +52,7 @@ async def return_answer(interaction, text, model, AIs, prompts, configs,
         except Exception as e:
             logger.error(e)
             result = form_question(name, text) + str(type(e)) + "が発生しました。"
-        logger.error("result : " + str(len(result)) + "文字")
+    logger.error("result : " + str(len(result)) + "文字")
     return result
 
 
