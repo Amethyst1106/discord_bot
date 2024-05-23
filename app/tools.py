@@ -1,10 +1,7 @@
-﻿from discord import integrations
-import google.generativeai as genai
+﻿import google.generativeai as genai
 from logging import getLogger
-import logging
 
 logger = getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 # 質問の整形
 def form_question(name, text):
