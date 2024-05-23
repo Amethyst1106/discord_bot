@@ -44,9 +44,9 @@ flash_model = genai.GenerativeModel("gemini-1.5-flash-latest",
 image_model = genai.GenerativeModel("gemini-pro-vision",
                                     safety_settings=safety_settings)
 new_ai = super_model.start_chat(history=[])
-nomal_AIs, nomal_prompts, nomal_configs = [], [], []
-super_AIs, super_prompts, super_configs = [], [], []
-flash_AIs, flash_prompts, flash_configs = [], [], []
+nomal_AIs, nomal_prompts, nomal_configs = {}, {}, {}
+super_AIs, super_prompts, super_configs = {}, {}, {}
+flash_AIs, flash_prompts, flash_configs = {}, {}, {}
 
 # botの設定
 intents = discord.Intents.none()  #スラッシュコマンド以外受け取らない
