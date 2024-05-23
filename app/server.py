@@ -1,5 +1,4 @@
 ﻿from threading import Thread
-
 from fastapi import FastAPI
 import uvicorn
 
