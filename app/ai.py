@@ -86,7 +86,7 @@ class ChatAI:
                                             generation_config = config)
         self.temperature = temperature
         self.chat_ai = self.model.start_chat(history=self.chat_ai.history)
-        result = self.name + f"コンフィグを\ntemperature : {temperature}\nに設定しました。"
+        result = f"コンフィグを\ntemperature : {temperature}\nに設定しました。"
         self.loging_info(result)
         return f"{self.name} : {result}"
     
