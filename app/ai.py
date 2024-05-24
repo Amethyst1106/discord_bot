@@ -67,6 +67,7 @@ class ChatAI:
                 logger.error(e)
                 result = form_question(name, text) + str(type(e)) + "が発生しました。"
             logger.error("result : " + str(len(result)) + "文字")
+        logger.error("回答完了\n")
         return result
 
     # 履歴とコンフィグをリセット
@@ -129,4 +130,5 @@ class ChatAI:
     # ログ出力用
     def loging_info(self, text = ""):
         logger.error(self.name)
-        logger.error(text + "\n")
+        if text != "":
+            logger.error(text + "\n")
