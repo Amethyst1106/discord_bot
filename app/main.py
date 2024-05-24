@@ -60,7 +60,8 @@ async def on_ready():
         super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル : ")
         flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル : ")
     logger.error('{0.user} がログインしたよ'.format(client))
-    
+
+#接続が切れたとき
 async def on_disconnect():
     logger.error("再接続中・・・")
 
@@ -298,6 +299,7 @@ async def return_image_answer(interaction: discord.Interaction,
     logger.error("回答完了\n")
 
 
+#------------------------------bot動作------------------------------------
 # Koyeb用 サーバー立ち上げ
 server_thread()
 
