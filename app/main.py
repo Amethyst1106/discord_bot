@@ -60,6 +60,7 @@ async def on_ready():
     await tree.sync()
     global nomal_AIs
     nomal_AIs = {guild.id : ai.ChatAI(guild_id=guild.id) for guild in client.guilds}
+    logger.error(client.guilds)
     logger.error('{0.user} がログインしたよ'.format(client))
     
 
