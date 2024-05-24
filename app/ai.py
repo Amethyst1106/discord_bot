@@ -98,14 +98,12 @@ class ChatAI:
     # プロンプトを追加
     def add_prompt(self, str):
         self.prompt.append(str)
-        self.loging_info()
         result = f"命令\n「{str}」\nを追加しました。"
         self.loging_info(result)
         return f"{self.name} : {result}"
     
     # プロンプトを消す
     def delete_prompt(self, index):
-        self.loging_info()
         try:
             deleted_prompt = self.prompt.pop(index)
             result = f"命令\n「{deleted_prompt}」\nを削除しました。"
