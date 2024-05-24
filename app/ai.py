@@ -83,7 +83,7 @@ class ChatAI:
         config = genai.GenerationConfig(temperature = temperature)
         self.model = genai.GenerativeModel(self.version, 
                                             safety_settings = self.safety_settings,
-                                            config = config)
+                                            generation_config = config)
         self.temperature = temperature
         self.chat_ai = self.model.start_chat(history=self.chat_ai.history)
         result = self.name + f"コンフィグを\ntemperature : {temperature}\nに設定しました。"
