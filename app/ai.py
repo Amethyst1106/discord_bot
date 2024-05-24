@@ -55,7 +55,7 @@ class ChatAI:
                         + "。" if self.prompt != [] else ""
                 text = limit_prompt + prompt + text
                 response = self.chat_ai.send_message(text)
-                result = form_question(name, text) + "【回答】\n" + response.text
+                result = form_question(name, text) + f"【回答({self.name})】\n" + response.text
 
                 if len(result) > 2000:
                     i += 100
