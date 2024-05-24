@@ -230,8 +230,8 @@ async def add_prompt_flash(interaction: discord.Interaction, prompt: str):
     await interaction.followup.send(result)
 
 #プロンプトを見る
-@tree.command(name="show_prompt", description="flashモデルの命令を表示します")
-async def show_prompt(interaction: discord.Interaction):
+@tree.command(name="show_prompt_flash", description="flashモデルの命令を表示します")
+async def show_prompt_flash(interaction: discord.Interaction):
     guild_id = interaction.guild_id
     await interaction.response.defer()
     result = flash_AIs[guild_id].show_prompt()
