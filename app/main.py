@@ -1,7 +1,6 @@
 ﻿import os
 from io import BytesIO
 from server import server_thread
-
 import discord
 import google.generativeai as genai
 import requests
@@ -9,13 +8,10 @@ from discord import app_commands
 from PIL import Image
 
 import ai
-from tools import form_question, return_answer, init_AI, reset_history
+from tools import form_question
 
 from logging import getLogger
-import logging
-
 logger = getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 # Gemini APIの設定
 genai.configure(api_key=os.environ['GEMINI_TOKEN'])
@@ -67,7 +63,7 @@ async def on_ready():
 async def on_disconnect():
     logger.error("再接続中・・・")
 
-#------------------------------nomal------------------------------------
+#------------------------------スラッシュコマンド------------------------------------
 #回答
 @tree.command(name="chat", description="送った内容に返答してくれます")
 @app_commands.choices(model = choice_list)
