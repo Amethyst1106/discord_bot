@@ -96,9 +96,9 @@ class ChatAI:
         return f"{self.name} : {result}"
     
     # プロンプトを追加
-    def add_prompt(self, str):
-        self.prompt.append(str)
-        result = f"命令\n「{str}」\nを追加しました。"
+    def add_prompt(self, prompt):
+        self.prompt.append(prompt)
+        result = f"命令\n「{prompt}」\nを追加しました。"
         self.loging_info(result)
         return f"{self.name} : {result}"
     
