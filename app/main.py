@@ -57,8 +57,8 @@ async def on_ready():
     global nomal_AIs, super_AIs, flash_AIs
     for guild in client.guilds:
         nomal_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=nomal_model_name)
-        super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name)
-        flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name)
+        super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル : ")
+        flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル : ")
     logger.error('{0.user} がログインしたよ'.format(client))
     
 

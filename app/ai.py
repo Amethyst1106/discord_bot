@@ -22,7 +22,7 @@ class ChatAI:
     def __init__(self, 
                 guild_id, 
                 version = "gemini-1.0-pro-latest",
-                name = "通常モデル:",
+                name = "通常モデル : ",
                 temperature = None,
                 safety_settings = default_safety_settings,
                 history = []):
@@ -127,5 +127,5 @@ class ChatAI:
     
     # ログ出力用
     def loging_info(self, text = ""):
-        logger.error(self.name, self.guild_id)
+        logger.error(self.name)
         logger.error(text + "\n\n")
