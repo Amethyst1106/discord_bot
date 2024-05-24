@@ -28,6 +28,7 @@ class ChatAI:
                 history = []):
         self.guild_id = guild_id
         self.name = name
+        self.version = version
         self.default_model = genai.GenerativeModel(version)
         config = genai.GenerationConfig(temperature = temperature)
         self.model = genai.GenerativeModel(version, 
@@ -41,12 +42,12 @@ class ChatAI:
 
     # 回答
     def return_answer(self, interaction, text):
+        self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
         name = interaction.user.display_name
         i = 0
         result = ""
-        self.loging_info()
         while(result == ""):
             try:
                 limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
@@ -97,7 +98,7 @@ class ChatAI:
     def add_prompt(self, str):
         self.prompt.append(str)
         self.loging_info()
-        result = "命令\n「{prompt}」\nを追加しました。"
+        result = f"命令\n「{str}」\nを追加しました。"
         self.loging_info(result)
         return self.name + result
     
@@ -128,4 +129,4 @@ class ChatAI:
     # ログ出力用
     def loging_info(self, text = ""):
         logger.error(self.name)
-        logger.error(text + "\n\n")
+        logger.error(text + "\n")
