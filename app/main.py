@@ -8,6 +8,7 @@ import requests
 from discord import app_commands
 from PIL import Image
 
+import ai
 from tools import form_question, return_answer, init_AI, reset_history
 
 from logging import getLogger
@@ -44,7 +45,8 @@ flash_model = genai.GenerativeModel("gemini-1.5-flash-latest",
 image_model = genai.GenerativeModel("gemini-pro-vision",
                                     safety_settings=safety_settings)
 new_ai = super_model.start_chat(history=[])
-nomal_AIs, nomal_prompts, nomal_configs = {}, {}, {}
+# nomal_AIs, nomal_prompts, nomal_configs = {}, {}, {}
+nomal_AIs = {}
 super_AIs, super_prompts, super_configs = {}, {}, {}
 flash_AIs, flash_prompts, flash_configs = {}, {}, {}
 
@@ -53,23 +55,22 @@ intents = discord.Intents.none()  #スラッシュコマンド以外受け取ら
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-
 @client.event
 async def on_ready():
     await tree.sync()
+    global nomal_AIs
+    nomal_AIs = {guild.id : ai.ChatAI(guild_id=guild.id) for guild in client.guilds}
     logger.error('{0.user} がログインしたよ'.format(client))
+    
 
 
 #履歴をリセット
 @tree.command(name="reset_history", description="通常モデルの記憶をリセットします")
 async def reset_history_nomal(interaction: discord.Interaction):
-    name="通常"
+    guild_id = interaction.guild_id
     await interaction.response.defer()
-    await reset_history(interaction=interaction,
-                        model=nomal_model,
-                        AIs=nomal_AIs,
-                        name=name)
-    await interaction.followup.send(name + "モデルの記憶をリセットしました。")
+    result = nomal_AIs[guild_id].reset_history()
+    await interaction.followup.send(result)
 
 
 #上位モデルの履歴をリセット
@@ -99,91 +100,65 @@ async def reset_history_flash(interaction: discord.Interaction):
 #プロンプトをリセット
 @tree.command(name="reset_prompt", description="命令をリセットします")
 async def reset_prompt(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
     await interaction.response.defer()
-    nomal_prompts[interaction.guild_id] = []
-    await interaction.followup.send("命令をリセットしました。")
-    logger.error("命令リセット\n\n")
+    result = nomal_AIs[guild_id].reset_prompt
+    await interaction.followup.send(result)
 
 
 #プロンプトを追加
 @tree.command(name="add_prompt", description="命令を追加します")
 async def add_prompt(interaction: discord.Interaction, prompt: str):
-    await interaction.response.defer()
     guild_id = interaction.guild_id
-    if guild_id not in nomal_prompts:
-        nomal_prompts[guild_id] = []
-    nomal_prompts[guild_id].append(prompt)
-    await interaction.followup.send(f"命令\n「{prompt}」\nを追加しました。")
-    logger.error("命令追加\n\n")
+    await interaction.response.defer()
+    result = nomal_AIs[guild_id].add_prompt(prompt)
+    await interaction.followup.send(result)
 
 
 #プロンプトを見る
 @tree.command(name="show_prompt", description="命令を表示します")
 async def show_prompt(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
     await interaction.response.defer()
-    prompt_list = nomal_prompts[interaction.guild_id]
-    await interaction.followup.send("命令一覧 : " \
-    + str([f"{x} : {prompt_list[x]}" for x in range(len(prompt_list))]))
+    result = nomal_AIs[guild_id].show_prompt()
+    await interaction.followup.send(result)
 
 
 #プロンプトを消す
 @tree.command(name="delete_prompt", description="命令を削除します")
 async def delete_prompt(interaction: discord.Interaction, index: int):
+    guild_id = interaction.guild_id
     await interaction.response.defer()
-    try:
-        prompt = nomal_prompts[interaction.guild_id].pop(index)
-        await interaction.followup.send(f"命令\n「{prompt}」\nを削除しました。")
-        logger.error("命令削除\n\n")
-    except Exception as e:
-        await interaction.followup.send(str(type(e)) + "が発生しました。")
+    result = nomal_AIs[guild_id].delete_prompt(index)
+    await interaction.followup.send(result)
 
 
 # コンフィグを変更する
 @tree.command(name="set_config", description="コンフィグを設定します。")
 async def set_config(interaction: discord.Interaction,
-                        temperature: float = 0.7):
-    await interaction.response.defer()
+                        temperature: float = None):
     guild_id = interaction.guild_id
-    if guild_id not in nomal_configs:
-        nomal_configs[guild_id] = default_config
-    if guild_id not in nomal_AIs:
-        nomal_AIs[guild_id] = nomal_model.start_chat(history=[])
-    nomal_configs[guild_id] = genai.GenerationConfig(temperature=temperature, )
-    changed_model = genai.GenerativeModel(
-        "gemini-1.0-pro-latest",
-        safety_settings=safety_settings,
-        generation_config=nomal_configs[guild_id])
-    nomal_AIs[guild_id] = changed_model.start_chat(
-        history=nomal_AIs[guild_id].history)
-    await interaction.followup.send(
-        f"コンフィグを\ntemperature : {temperature}\nに設定しました。")
-    logger.error("コンフィグ変更\n\n")
+    await interaction.response.defer()
+    result = nomal_AIs[guild_id].set_config(float)
+    await interaction.followup.send(result)
 
 
 #コンフィグを見る
 @tree.command(name="show_config", description="コンフィグを表示します")
 async def show_config(interaction: discord.Interaction):
-    await interaction.response.defer()
     guild_id = interaction.guild_id
-    if guild_id not in nomal_configs:
-        nomal_configs[guild_id] = default_config
-    config = nomal_configs[guild_id]
-    await interaction.followup.send(config)
+    await interaction.response.defer()
+    result = nomal_AIs[guild_id].show_config
+    await interaction.followup.send(result)
 
 
 #回答
 @tree.command(name="chat", description="送った内容に返答してくれます")
 async def return_nomal_answer(interaction: discord.Interaction, text: str):
+    guild_id = interaction.guild_id
     await interaction.response.defer()
-    result = await return_answer(interaction=interaction,
-                        text=text,
-                        model=nomal_model,
-                        AIs=nomal_AIs,
-                        prompts=nomal_prompts,
-                        configs=nomal_configs,
-                        default_config=default_config)
+    result = nomal_AIs[guild_id].return_answer(interaction, text)
     await interaction.followup.send(result)
-    logger.error("回答完了\n")
 
 
 #新モデルの回答
