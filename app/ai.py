@@ -22,7 +22,7 @@ class ChatAI:
     def __init__(self, 
                 guild_id, 
                 version = "gemini-1.0-pro-latest",
-                name = "通常モデル : ",
+                name = "通常モデル",
                 temperature = None,
                 safety_settings = default_safety_settings,
                 history = []):
@@ -76,7 +76,7 @@ class ChatAI:
         self.temperature = None
         result = "記憶をリセットしました。"
         self.loging_info(result)
-        return self.name + result
+        return f"{self.name} : {result}"
 
     # コンフィグを変更
     def set_config(self, temperature):
@@ -88,12 +88,12 @@ class ChatAI:
         self.chat_ai = self.model.start_chat(history=self.chat_ai.history)
         result = self.name + f"コンフィグを\ntemperature : {temperature}\nに設定しました。"
         self.loging_info(result)
-        return self.name + result
+        return f"{self.name} : {result}"
     
     # コンフィグを見る
     def show_config(self):
         result = f"temperature = {self.temperature}"
-        return self.name + result
+        return f"{self.name} : {result}"
     
     # プロンプトを追加
     def add_prompt(self, str):
@@ -101,7 +101,7 @@ class ChatAI:
         self.loging_info()
         result = f"命令\n「{str}」\nを追加しました。"
         self.loging_info(result)
-        return self.name + result
+        return f"{self.name} : {result}"
     
     # プロンプトを消す
     def delete_prompt(self, index):
@@ -112,7 +112,7 @@ class ChatAI:
         except Exception as e:
             result = str(type(e)) + "が発生しました。"
         self.loging_info(result)
-        return self.name + result
+        return f"{self.name} : {result}"
 
     # プロンプトをリセット
     def reset_prompt(self):
