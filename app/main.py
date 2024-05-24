@@ -61,6 +61,8 @@ async def on_ready():
         flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル : ")
     logger.error('{0.user} がログインしたよ'.format(client))
     
+async def on_disconnect():
+    logger.error("再接続中・・・")
 
 #------------------------------nomal------------------------------------
 #回答
@@ -72,7 +74,7 @@ async def return_nomal_answer(interaction: discord.Interaction, text: str):
     await interaction.followup.send(result)
 
 #履歴をリセット
-@tree.command(name="reset_history", description="通常モデルの記憶をリセットします")
+@tree.command(name="reset_history", description="記憶をリセットします")
 async def reset_history_nomal(interaction: discord.Interaction):
     guild_id = interaction.guild_id
     await interaction.response.defer()
@@ -294,6 +296,7 @@ async def return_image_answer(interaction: discord.Interaction,
     else:
         await interaction.followup.send(result, embed=embed)
     logger.error("回答完了\n")
+
 
 # Koyeb用 サーバー立ち上げ
 server_thread()
