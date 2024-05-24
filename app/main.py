@@ -36,19 +36,15 @@ safety_settings = [{
 default_config = genai.GenerationConfig(temperature=0.7)
 
 # Geminiモデルの設定
-nomal_model = genai.GenerativeModel("gemini-1.0-pro-latest",
-                                    safety_settings=safety_settings)
-super_model = genai.GenerativeModel("gemini-1.5-pro-latest",
-                                    safety_settings=safety_settings)
-flash_model = genai.GenerativeModel("gemini-1.5-flash-latest",
-                                    safety_settings=safety_settings)
+nomal_model_name = "gemini-1.0-pro-latest"
+super_model_name = "gemini-1.5-pro-latest"
+flash_model_name = "gemini-1.5-flash-latest"
 image_model = genai.GenerativeModel("gemini-pro-vision",
                                     safety_settings=safety_settings)
-new_ai = super_model.start_chat(history=[])
-# nomal_AIs, nomal_prompts, nomal_configs = {}, {}, {}
+
 nomal_AIs = {}
-super_AIs, super_prompts, super_configs = {}, {}, {}
-flash_AIs, flash_prompts, flash_configs = {}, {}, {}
+super_AIs = {}
+flash_AIs = {}
 
 # botの設定
 intents = discord.Intents.none()  #スラッシュコマンド以外受け取らない
@@ -58,12 +54,22 @@ tree = app_commands.CommandTree(client)
 @client.event
 async def on_ready():
     await tree.sync()
-    global nomal_AIs
-    nomal_AIs = {guild.id : ai.ChatAI(guild_id=guild.id) for guild in client.guilds}
-    logger.error(client.guilds)
+    global nomal_AIs, super_AIs, flash_AIs
+    for guild in client.guilds:
+        nomal_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=nomal_model_name)
+        super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name)
+        flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name)
     logger.error('{0.user} がログインしたよ'.format(client))
     
 
+#------------------------------nomal------------------------------------
+#回答
+@tree.command(name="chat", description="送った内容に返答してくれます")
+async def return_nomal_answer(interaction: discord.Interaction, text: str):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = nomal_AIs[guild_id].return_answer(interaction, text)
+    await interaction.followup.send(result)
 
 #履歴をリセット
 @tree.command(name="reset_history", description="通常モデルの記憶をリセットします")
@@ -73,125 +79,191 @@ async def reset_history_nomal(interaction: discord.Interaction):
     result = nomal_AIs[guild_id].reset_history()
     await interaction.followup.send(result)
 
-
-#上位モデルの履歴をリセット
-@tree.command(name="reset_history_super", description="上位モデルの記憶をリセットします")
-async def reset_history_super(interaction: discord.Interaction):
-    name="上位"
-    await interaction.response.defer()
-    await reset_history(interaction=interaction,
-                        model=super_model,
-                        AIs=super_AIs,
-                        name=name)
-    await interaction.followup.send(name + "モデルの記憶をリセットしました。")
-
-
-#高速モデルの履歴をリセット
-@tree.command(name="reset_history_flash", description="高速モデルの記憶をリセットします")
-async def reset_history_flash(interaction: discord.Interaction):
-    name="高速"
-    await interaction.response.defer()
-    await reset_history(interaction=interaction,
-                        model=flash_model,
-                        AIs=flash_AIs,
-                        name=name)
-    await interaction.followup.send(name + "モデルの記憶をリセットしました。")
-
-
 #プロンプトをリセット
 @tree.command(name="reset_prompt", description="命令をリセットします")
-async def reset_prompt(interaction: discord.Interaction):
+async def reset_prompt_nomal(interaction: discord.Interaction):
     guild_id = interaction.guild_id
     await interaction.response.defer()
-    result = nomal_AIs[guild_id].reset_prompt
+    result = nomal_AIs[guild_id].reset_prompt()
     await interaction.followup.send(result)
-
 
 #プロンプトを追加
 @tree.command(name="add_prompt", description="命令を追加します")
-async def add_prompt(interaction: discord.Interaction, prompt: str):
+async def add_prompt_nomal(interaction: discord.Interaction, prompt: str):
     guild_id = interaction.guild_id
     await interaction.response.defer()
     result = nomal_AIs[guild_id].add_prompt(prompt)
     await interaction.followup.send(result)
 
-
 #プロンプトを見る
 @tree.command(name="show_prompt", description="命令を表示します")
-async def show_prompt(interaction: discord.Interaction):
+async def show_prompt_nomal(interaction: discord.Interaction):
     guild_id = interaction.guild_id
     await interaction.response.defer()
     result = nomal_AIs[guild_id].show_prompt()
     await interaction.followup.send(result)
 
-
 #プロンプトを消す
 @tree.command(name="delete_prompt", description="命令を削除します")
-async def delete_prompt(interaction: discord.Interaction, index: int):
+async def delete_prompt_nomal(interaction: discord.Interaction, index: int):
     guild_id = interaction.guild_id
     await interaction.response.defer()
     result = nomal_AIs[guild_id].delete_prompt(index)
     await interaction.followup.send(result)
 
-
 # コンフィグを変更する
 @tree.command(name="set_config", description="コンフィグを設定します。")
-async def set_config(interaction: discord.Interaction,
+async def set_config_nomal(interaction: discord.Interaction,
                         temperature: float = None):
     guild_id = interaction.guild_id
     await interaction.response.defer()
-    result = nomal_AIs[guild_id].set_config(float)
+    result = nomal_AIs[guild_id].set_config(temperature)
     await interaction.followup.send(result)
-
 
 #コンフィグを見る
 @tree.command(name="show_config", description="コンフィグを表示します")
-async def show_config(interaction: discord.Interaction):
+async def show_config_nomal(interaction: discord.Interaction):
     guild_id = interaction.guild_id
     await interaction.response.defer()
-    result = nomal_AIs[guild_id].show_config
+    result = nomal_AIs[guild_id].show_config()
     await interaction.followup.send(result)
 
 
+#------------------------------super------------------------------------
 #回答
-@tree.command(name="chat", description="送った内容に返答してくれます")
-async def return_nomal_answer(interaction: discord.Interaction, text: str):
-    guild_id = interaction.guild_id
-    await interaction.response.defer()
-    result = nomal_AIs[guild_id].return_answer(interaction, text)
-    await interaction.followup.send(result)
-
-
-#新モデルの回答
 @tree.command(name="super_chat", description="上位モデルが返答してくれます")
 async def return_super_answer(interaction: discord.Interaction, text: str):
+    guild_id = interaction.guild_id
     await interaction.response.defer()
-    result = await return_answer(interaction=interaction,
-                        text=text,
-                        model=super_model,
-                        AIs=super_AIs,
-                        prompts=super_prompts,
-                        configs=super_configs,
-                        default_config=default_config)
+    result = super_AIs[guild_id].return_answer(interaction, text)
     await interaction.followup.send(result)
-    logger.error("回答完了\n")
+
+#履歴をリセット
+@tree.command(name="reset_history_super", description="上位モデルの記憶をリセットします")
+async def reset_history_super(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = super_AIs[guild_id].reset_history()
+    await interaction.followup.send(result)
+
+#プロンプトをリセット
+@tree.command(name="reset_prompt_super", description="上位モデルの命令をリセットします")
+async def reset_prompt_super(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = super_AIs[guild_id].reset_prompt()
+    await interaction.followup.send(result)
+
+#プロンプトを追加
+@tree.command(name="add_prompt_super", description="上位モデルの命令を追加します")
+async def add_prompt_super(interaction: discord.Interaction, prompt: str):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = super_AIs[guild_id].add_prompt(prompt)
+    await interaction.followup.send(result)
+
+#プロンプトを見る
+@tree.command(name="show_prompt_super", description="上位モデルの命令を表示します")
+async def show_prompt_super(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = super_AIs[guild_id].show_prompt()
+    await interaction.followup.send(result)
+
+#プロンプトを消す
+@tree.command(name="delete_prompt_super", description="上位モデルの命令を削除します")
+async def delete_prompt_super(interaction: discord.Interaction, index: int):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = super_AIs[guild_id].delete_prompt(index)
+    await interaction.followup.send(result)
+
+# コンフィグを変更する
+@tree.command(name="set_config_super", description="上位モデルのコンフィグを設定します。")
+async def set_config_super(interaction: discord.Interaction,
+                        temperature: float = None):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = super_AIs[guild_id].set_config(temperature)
+    await interaction.followup.send(result)
+
+#コンフィグを見る
+@tree.command(name="show_config_super", description="上位モデルのコンフィグを表示します")
+async def show_config_super(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = super_AIs[guild_id].show_config()
+    await interaction.followup.send(result)
 
 
-#高速モデルの回答
-@tree.command(name="flash_chat", description="高速モデルが返答してくれます")
+#------------------------------flash------------------------------------
+#回答
+@tree.command(name="flash_chat", description="flashモデルが送った内容に返答してくれます")
 async def return_flash_answer(interaction: discord.Interaction, text: str):
+    guild_id = interaction.guild_id
     await interaction.response.defer()
-    result = await return_answer(interaction=interaction,
-                        text=text,
-                        model=flash_model,
-                        AIs=flash_AIs,
-                        prompts=flash_prompts,
-                        configs=flash_configs,
-                        default_config=default_config)
+    result = flash_AIs[guild_id].return_answer(interaction, text)
     await interaction.followup.send(result)
-    logger.error("回答完了\n")
+
+#履歴をリセット
+@tree.command(name="reset_history_flash", description="flashモデルの記憶をリセットします")
+async def reset_history_flash(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = flash_AIs[guild_id].reset_history()
+    await interaction.followup.send(result)
+
+#プロンプトをリセット
+@tree.command(name="reset_prompt_flash", description="flashモデルの命令をリセットします")
+async def reset_prompt_flash(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = flash_AIs[guild_id].reset_prompt()
+    await interaction.followup.send(result)
+
+#プロンプトを追加
+@tree.command(name="add_prompt_flash", description="flashモデルの命令を追加します")
+async def add_prompt_flash(interaction: discord.Interaction, prompt: str):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = flash_AIs[guild_id].add_prompt(prompt)
+    await interaction.followup.send(result)
+
+#プロンプトを見る
+@tree.command(name="show_prompt", description="flashモデルの命令を表示します")
+async def show_prompt(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = flash_AIs[guild_id].show_prompt()
+    await interaction.followup.send(result)
+
+#プロンプトを消す
+@tree.command(name="delete_prompt_flash", description="flashモデルの命令を削除します")
+async def delete_prompt_flash(interaction: discord.Interaction, index: int):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = flash_AIs[guild_id].delete_prompt(index)
+    await interaction.followup.send(result)
+
+# コンフィグを変更する
+@tree.command(name="set_config_flash", description="flashモデルのコンフィグを設定します。")
+async def set_config_flash(interaction: discord.Interaction,
+                        temperature: float = None):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = flash_AIs[guild_id].set_config(temperature)
+    await interaction.followup.send(result)
+
+#コンフィグを見る
+@tree.command(name="show_config_flash", description="flashモデルのコンフィグを表示します")
+async def show_config_flash(interaction: discord.Interaction):
+    guild_id = interaction.guild_id
+    await interaction.response.defer()
+    result = flash_AIs[guild_id].show_config()
+    await interaction.followup.send(result)
 
 
+#------------------------------image------------------------------------
 # 画像モデルの回答
 @tree.command(name="image_chat", description="画像を読み取って回答してくれます")
 async def return_image_answer(interaction: discord.Interaction,

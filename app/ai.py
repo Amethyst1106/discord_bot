@@ -46,6 +46,7 @@ class ChatAI:
         name = interaction.user.display_name
         i = 0
         result = ""
+        self.loging_info()
         while(result == ""):
             try:
                 limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
@@ -65,12 +66,7 @@ class ChatAI:
                 logger.error(e)
                 result = form_question(name, text) + str(type(e)) + "が発生しました。"
             logger.error("result : " + str(len(result)) + "文字")
-
         return result
-    
-    def loging_info(self, text = ""):
-        logger.error(self.name, self.guild_id)
-        logger.error(text + "\n")
 
     # 履歴とコンフィグをリセット
     def reset_history(self):
@@ -123,8 +119,13 @@ class ChatAI:
         self.loging_info(result)
         return result
     
-    #プロンプトを見る
+    # プロンプトを見る
     def show_prompt(self):
         result = "命令一覧 : " \
                 + str([f"{x} : {self.prompt}" for x in range(len(self.prompt))])
         return result
+    
+    # ログ出力用
+    def loging_info(self, text = ""):
+        logger.error(self.name, self.guild_id)
+        logger.error(text + "\n\n")
