@@ -136,7 +136,7 @@ async def set_config(interaction: discord.Interaction,
     result = chat_ai.set_config(temperature)
     await interaction.followup.send(result)
 
-#コンフィグを見る
+# コンフィグを見る
 @tree.command(name="show_config", description="コンフィグを表示します")
 @app_commands.choices(model = choice_list)
 async def show_config(interaction: discord.Interaction, model: str = "nomal"):
@@ -146,14 +146,19 @@ async def show_config(interaction: discord.Interaction, model: str = "nomal"):
     result = chat_ai.show_config()
     await interaction.followup.send(result)
 
-@tree.command(name="wikipedia", description="Wikipediaから検索して要約します")
-async def wikipedia(interaction: discord.Interaction, word: str):
+# Wikipediaの記事を要約
+@tree.command(name="wikipedia", description="Wikipediaの項目について要約します")
+async def wikipedia(interaction: discord.Interaction, word: str, length: int = 200):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic["flash"][guild_id]
     text = search.get_wikipedia_text(word)
-    result = form_question(interaction.user.display_name, word)\
-            + chat_ai.return_summary(word, text)
+    if text:
+        result = form_question(interaction.user.display_name, word)\
+                + chat_ai.return_summary(word, text, length)
+    else:
+        result = form_question(interaction.user.display_name, word)\
+                + "その項目はありません"
     await interaction.followup.send(result)
 
 #------------------------------image------------------------------------
