@@ -45,6 +45,7 @@ class ChatAI:
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
+        name = interaction.user.display_name
         i = 0
         result = ""
         while(result == ""):
@@ -54,17 +55,17 @@ class ChatAI:
                         + "。" if self.prompt != [] else ""
                 text = limit_prompt + prompt + text
                 response = self.chat_ai.send_message(text)
-                result = f"【回答({self.name})】\n" + response.text
+                result = form_question(name, text) + f"【回答({self.name})】\n" + response.text
 
                 if len(result) > 2000:
                     i += 100
                     result = ""  # 2000文字超えるとdiscord側のエラーになるので再トライ
 
             except genai.types.StopCandidateException as e:
-                result = str(e) + " により回答不能です。"
+                result = form_question(name, text) + str(e) + " により回答不能です。"
             except Exception as e:
                 logger.error(e)
-                result = str(type(e)) + "が発生しました。"
+                result = form_question(name, text) + str(type(e)) + "が発生しました。"
             logger.error("result : " + str(len(result)) + "文字")
         logger.error("回答完了\n")
         return result
