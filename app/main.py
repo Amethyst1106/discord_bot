@@ -7,7 +7,7 @@ import requests
 from discord import app_commands
 from PIL import Image
 
-import ai
+import ai, search
 from tools import form_question
 
 from logging import getLogger
@@ -146,6 +146,15 @@ async def show_config(interaction: discord.Interaction, model: str = "nomal"):
     result = chat_ai.show_config()
     await interaction.followup.send(result)
 
+@tree.command(name="wikipedia", description="Wikipediaから検索して要約します")
+async def wikipedia(interaction: discord.Interaction, word: str):
+    await interaction.response.defer()
+    guild_id = interaction.guild_id
+    chat_ai = AIs_dic["flash"][guild_id]
+    text = search.get_wikipedia_text(word)
+    result = form_question(interaction.user.display_name, word)\
+            + chat_ai.return_summary(word, text)
+    await interaction.followup.send(result)
 
 #------------------------------image------------------------------------
 # 画像モデルの回答
