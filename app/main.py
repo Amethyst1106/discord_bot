@@ -152,10 +152,10 @@ async def wikipedia(interaction: discord.Interaction, word: str, length: int = 2
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic["flash"][guild_id]
-    text = search.get_wikipedia_text(word)
-    if text:
-        result = form_question(interaction.user.display_name, word)\
-                + chat_ai.return_summary(word, text, length)
+    search_result = search.get_wikipedia_text(word)
+    if search_result:
+        result = form_question(interaction.user.display_name, word + "\n項目名:" + search_result[0])\
+                + chat_ai.get_summary(search_result[0], search_result[1], length)
     else:
         result = form_question(interaction.user.display_name, word)\
                 + "その項目はありません"

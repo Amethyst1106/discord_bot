@@ -131,9 +131,10 @@ class ChatAI:
         if text != "":
             logger.error(text + "\n")
 
-    def return_summary(self, word, text, length):
-        logger.error("Wikipedia : " + word)
-        prompt = f"以下は、{word}のwikipediaの文です。{length}文字程度で要約して。句点で改行して。\n" + text
+    # 要約
+    def get_summary(self, word, text, length):
+        logger.error("summary : " + word)
+        prompt = f"以下の文を、{length}文字程度で要約して。句点で改行して。\n" + text
         response = self.chat_ai.send_message(prompt)
         result = response.text
         logger.error("result : " + str(len(result)) + "文字")
