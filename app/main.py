@@ -69,7 +69,7 @@ async def on_disconnect():
 @tree.command(name="chat", description="送った内容に返答してくれます")
 @app_commands.choices(model = choice_list)
 async def chat(interaction: discord.Interaction, text: str, model: str = "nomal"):
-    interaction.channel.send(form_question(interaction.user.display_name, text))
+    await interaction.channel.send(form_question(interaction.user.display_name, text))
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
