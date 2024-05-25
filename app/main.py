@@ -63,11 +63,13 @@ async def on_ready():
 async def on_disconnect():
     logger.error("再接続中・・・")
 
+
 #------------------------------スラッシュコマンド------------------------------------
 #回答
 @tree.command(name="chat", description="送った内容に返答してくれます")
 @app_commands.choices(model = choice_list)
 async def chat(interaction: discord.Interaction, text: str, model: str = "nomal"):
+    interaction.channel.send(form_question(interaction.user.display_name, text))
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
