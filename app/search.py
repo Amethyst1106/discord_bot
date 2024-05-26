@@ -7,13 +7,15 @@ def get_wikipedia_text(word):
         if search_list:
             result = get_formed_result(search_list[0])
         else:
-            result = []
+            result = [False, "その項目はありません"]
     except wikipedia.DisambiguationError as e:
         first_option = e.options[0]
-        try:
-            result = get_formed_result(first_option)
-        except Exception as e:
-            return f"エラーが発生しました: {e}"
+        result = get_formed_result(first_option)
+        
+    except wikipedia.WikipediaException as e:
+        result = [False, "Wikipediaが忙しいらしいので、再トライしてください"]
+    except Exception as e:
+        result = [False, str(e) + "が発生しました。"]
     return result
 
 def get_formed_result(word):
