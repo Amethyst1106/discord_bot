@@ -21,4 +21,4 @@ def get_wikipedia_text(word):
 def get_formed_result(word):
     page = wikipedia.page(word)
     text = page.content.split("\n\n\n== 符号位置")[0].split("\n\n\n== 脚注")[0]
-    return [word, text]
+    return [word, text, page.url]
