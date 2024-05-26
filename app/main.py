@@ -148,7 +148,7 @@ async def show_config(interaction: discord.Interaction, model: str = "nomal"):
 
 # Wikipediaの記事を要約
 @tree.command(name="wikipedia", description="Wikipediaの項目について要約します")
-async def wikipedia(interaction: discord.Interaction, word: str, length: int = 200):
+async def wikipedia(interaction: discord.Interaction, word: str, order: str = "", length: int = 300):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic["flash"][guild_id]
@@ -157,7 +157,7 @@ async def wikipedia(interaction: discord.Interaction, word: str, length: int = 2
         result = form_question(interaction.user.display_name, word)\
                 + f"項目名：{search_result[0]}\n"\
                 + f"<{search_result[2]}>\n"\
-                + chat_ai.get_summary(search_result[0], search_result[1], length)
+                + chat_ai.get_summary(search_result[0], search_result[1], order, length)
     else:
         result = form_question(interaction.user.display_name, word)\
                 + search_result[1]
