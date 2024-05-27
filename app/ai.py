@@ -1,6 +1,11 @@
 ﻿import google.generativeai as genai
+import discord
 from tools import form_question
+from PIL import Image
+from io import BytesIO
+import requests
 from logging import getLogger
+
 
 logger = getLogger(__name__)
 
@@ -41,20 +46,20 @@ class ChatAI:
         self.temperature = None
 
     # 回答
-    def return_answer(self, interaction, text):
+    def return_answer(self, interaction, text, image = None):
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
+        if self.name != "高速モデル" and image is not None:
+            return "画像はflashに渡してください", None
         name = interaction.user.display_name
+        embed = None
         i = 0
         result = ""
         while(result == ""):
             try:
-                limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
-                prompt = "。\n".join(self.prompt) \
-                        + "。" if self.prompt != [] else ""
-                text = limit_prompt + prompt + text
-                response = self.chat_ai.send_message(text)
+                content, embed = self._form_content(i, text, image, self.prompt)
+                response = self.chat_ai.send_message(content)
                 result = form_question(name, text) + f"【回答({self.name})】\n" + response.text
 
                 if len(result) > 2000:
@@ -68,7 +73,22 @@ class ChatAI:
                 result = form_question(name, text) + str(type(e)) + "が発生しました。"
             logger.error("result : " + str(len(result)) + "文字")
         logger.error("回答完了\n")
-        return result
+        return result, embed
+
+    # 入力コンテンツの整形
+    def _form_content(self, i, text, image = None, prompt = []):
+        limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
+        prompt = "。\n".join(prompt) \
+                + "。" if prompt != [] else ""
+        text = limit_prompt + prompt + text
+        embed = None
+        if image is not None:
+            embed = discord.Embed(title="画像", color=0xff0000)
+            embed.set_image(url=image.url)
+            data = requests.get(image.url)
+            image_file = Image.open(BytesIO(data.content))
+        content = [text, image_file] if image is not None else [text]
+        return content, embed
 
     # 履歴とコンフィグをリセット
     def reset_history(self):
