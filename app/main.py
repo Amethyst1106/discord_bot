@@ -65,7 +65,7 @@ async def on_disconnect():
 #回答
 @tree.command(name="chat", description="送った内容に返答してくれます")
 @app_commands.choices(model = choice_list)
-async def chat(interaction: discord.Interaction, text: str, image: discord.Attachment = None,  model: str = "nomal"):
+async def chat(interaction: discord.Interaction, text: str, image: discord.Attachment = None,  model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -75,7 +75,7 @@ async def chat(interaction: discord.Interaction, text: str, image: discord.Attac
 #履歴をリセット
 @tree.command(name="reset_history", description="記憶をリセットします")
 @app_commands.choices(model = choice_list)
-async def reset_history(interaction: discord.Interaction, model: str = "nomal"):
+async def reset_history(interaction: discord.Interaction, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -85,7 +85,7 @@ async def reset_history(interaction: discord.Interaction, model: str = "nomal"):
 #プロンプトをリセット
 @tree.command(name="reset_prompt", description="命令をリセットします")
 @app_commands.choices(model = choice_list)
-async def reset_prompt_nomal(interaction: discord.Interaction, model: str = "nomal"):
+async def reset_prompt(interaction: discord.Interaction, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -95,7 +95,7 @@ async def reset_prompt_nomal(interaction: discord.Interaction, model: str = "nom
 #プロンプトを追加
 @tree.command(name="add_prompt", description="命令を追加します")
 @app_commands.choices(model = choice_list)
-async def add_prompt(interaction: discord.Interaction, prompt: str, model: str = "nomal"):
+async def add_prompt(interaction: discord.Interaction, prompt: str, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -105,7 +105,7 @@ async def add_prompt(interaction: discord.Interaction, prompt: str, model: str =
 #プロンプトを見る
 @tree.command(name="show_prompt", description="命令を表示します")
 @app_commands.choices(model = choice_list)
-async def show_prompt(interaction: discord.Interaction, model: str = "nomal"):
+async def show_prompt(interaction: discord.Interaction, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -115,7 +115,7 @@ async def show_prompt(interaction: discord.Interaction, model: str = "nomal"):
 #プロンプトを消す
 @tree.command(name="delete_prompt", description="命令を削除します")
 @app_commands.choices(model = choice_list)
-async def delete_prompt(interaction: discord.Interaction, index: int, model: str = "nomal"):
+async def delete_prompt(interaction: discord.Interaction, index: int, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -126,7 +126,7 @@ async def delete_prompt(interaction: discord.Interaction, index: int, model: str
 @tree.command(name="set_config", description="コンフィグを設定します。")
 @app_commands.choices(model = choice_list)
 async def set_config(interaction: discord.Interaction,
-                        temperature: float = None, model: str = "nomal"):
+                        temperature: float = None, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -136,7 +136,7 @@ async def set_config(interaction: discord.Interaction,
 # コンフィグを見る
 @tree.command(name="show_config", description="コンフィグを表示します")
 @app_commands.choices(model = choice_list)
-async def show_config(interaction: discord.Interaction, model: str = "nomal"):
+async def show_config(interaction: discord.Interaction, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
