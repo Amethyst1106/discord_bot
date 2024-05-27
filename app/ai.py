@@ -133,7 +133,7 @@ class ChatAI:
 
     # 要約
     def get_summary(self, word, text, order, length):
-        logger.error(f"summary : {word}\n{order}")
+        logger.error(f"summary : {word}" + (f"\n{order}" if order else ""))
         prompt = f"以下の文を、{length}文字程度で要約して。{order}。句点で改行して。\n" + text
         response = self.chat_ai.send_message(prompt)
         result = response.text
