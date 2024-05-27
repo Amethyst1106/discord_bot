@@ -60,7 +60,7 @@ class ChatAI:
             try:
                 content, embed = self._form_content(i, text, image, self.prompt)
                 response = self.chat_ai.send_message(content)
-                result = form_question(name, text) + f"【回答({self.name})】\n" + response.text
+                result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
 
                 if len(result) > 2000:
                     i += 100
