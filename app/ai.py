@@ -142,7 +142,7 @@ class ChatAI:
     # プロンプトを見る
     def show_prompt(self):
         result = "命令一覧\n" \
-                + str([f"{x} : {self.prompt[x]}\n" for x in range(len(self.prompt))])
+                + "\n".join([f"{x} : {self.prompt[x]}" for x in range(len(self.prompt))])
         return result
     
     # ログ出力用
