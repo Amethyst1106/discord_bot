@@ -38,7 +38,7 @@ image_model = genai.GenerativeModel("gemini-pro-vision",
 nomal_AIs = {}
 super_AIs = {}
 flash_AIs = {}
-AIs_dic = {"nomal" : nomal_AIs, "super" : super_AIs, "flash" : flash_AIs}
+AIs_dic = {"flash" : flash_AIs, "super" : super_AIs, "nomal" : nomal_AIs,  }
 choice_list = [app_commands.Choice(name=model, value=model) for model in AIs_dic.keys()]
 
 # botの設定
