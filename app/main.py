@@ -1,14 +1,11 @@
 ﻿import os
-from io import BytesIO
-from server import server_thread
 import discord
 import google.generativeai as genai
-import requests
 from discord import app_commands
-from PIL import Image
 
 import ai, search
 from tools import form_question
+from server import server_thread
 
 from logging import getLogger
 logger = getLogger(__name__)
@@ -163,38 +160,6 @@ async def wikipedia(interaction: discord.Interaction, word: str, order: str = ""
                                 f"{word}" + (f"\n{order}" if order else ""))\
                 + search_result[1]
     await interaction.followup.send(result)
-
-#------------------------------image------------------------------------
-# 画像モデルの回答
-@tree.command(name="image_chat", description="画像を読み取って回答してくれます")
-async def return_image_answer(interaction: discord.Interaction,
-                                image: discord.Attachment,
-                                text: str = ""):
-    logger.error("質問受付")
-    await interaction.response.defer()
-    name = interaction.user.display_name
-    text = "日本語で回答して。" + text
-    embed = None
-    try:
-        logger.error("質問 : " + text)
-        embed = discord.Embed(title="画像", color=0xff0000)
-        embed.set_image(url=image.url)
-
-        data = requests.get(image.url)
-        image_file = Image.open(BytesIO(data.content))
-        response = image_model.generate_content([text, image_file])
-        result = form_question(name, text) + "【回答】\n" + response.text
-    except genai.types.StopCandidateException as e:
-        result = form_question(name, text) + str(e) + " により回答不能です。"
-    except Exception as e:
-        logger.error(e)
-        result = form_question(name, text) + str(type(e)) + "が発生しました。"
-
-    if embed is None:
-        await interaction.followup.send(result)
-    else:
-        await interaction.followup.send(result, embed=embed)
-    logger.error("回答完了\n")
 
 
 #------------------------------bot動作------------------------------------
