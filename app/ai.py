@@ -47,7 +47,7 @@ class ChatAI:
         self.temperature = None
 
     # 回答
-    def return_answer(self, interaction, text, image = None):
+    async def return_answer(self, interaction, text, image = None):
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
@@ -60,7 +60,7 @@ class ChatAI:
         while(result == ""):
             try:
                 content, embed = self._form_content(i, text, image, self.prompt)
-                response = self.chat_ai.send_message(content)
+                response = await self.chat_ai.send_message_async(content)
                 result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
 
                 if len(result) > 2000:
@@ -73,6 +73,7 @@ class ChatAI:
                 logger.error(e)
                 result = form_question(name, text) + str(type(e)) + "が発生しました。"
             logger.error("result : " + str(len(result)) + "文字")
+
         logger.error("回答完了\n")
         return result, embed
 
@@ -115,7 +116,7 @@ class ChatAI:
         return f"{self.name} : {result}"
     
     # コンフィグを見る
-    def show_config(self):
+    async def show_config(self):
         result = f"temperature = {self.temperature}"
         return f"{self.name} : {result}"
     
@@ -144,7 +145,7 @@ class ChatAI:
         return result
     
     # プロンプトを見る
-    def show_prompt(self):
+    async def show_prompt(self):
         result = "命令一覧\n" \
                 + "\n".join([f"{x} : {self.prompt[x]}" for x in range(len(self.prompt))])
         return result

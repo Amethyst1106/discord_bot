@@ -69,7 +69,7 @@ async def chat(interaction: discord.Interaction, text: str, image: discord.Attac
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result, embed = chat_ai.return_answer(interaction, text, image)
+    result, embed = await chat_ai.return_answer(interaction, text, image)
     await interaction.followup.send(result, embed=embed)
 
 #履歴をリセット
@@ -109,7 +109,7 @@ async def show_prompt(interaction: discord.Interaction, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result = chat_ai.show_prompt()
+    result = await chat_ai.show_prompt()
     await interaction.followup.send(result)
 
 #プロンプトを消す
@@ -140,7 +140,7 @@ async def show_config(interaction: discord.Interaction, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result = chat_ai.show_config()
+    result = await chat_ai.show_config()
     await interaction.followup.send(result)
 
 # Wikipediaの記事を要約
