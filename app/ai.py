@@ -2,6 +2,7 @@
 import discord
 from tools import form_question
 from PIL import Image
+import aiohttp
 from io import BytesIO
 import requests
 from logging import getLogger
@@ -76,17 +77,20 @@ class ChatAI:
         return result, embed
 
     # 入力コンテンツの整形
-    def _form_content(self, i, text, image = None, prompt = []):
+    async def _form_content(self, i, text, image = None, prompt = []):
         limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
-        prompt = "。\n".join(prompt) \
-                + "。" if prompt != [] else ""
-        text = limit_prompt + prompt + text
+        prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
+        text = limit_prompt + prompt_text + text
         embed = None
         if image is not None:
             embed = discord.Embed(title="画像", color=0xff0000)
             embed.set_image(url=image.url)
             data = requests.get(image.url)
-            image_file = Image.open(BytesIO(data.content))
+            async with aiohttp.ClientSession() as session:
+                async with session.get(image.url) as response:
+                    data = await response.read()
+                    image_file = Image.open(BytesIO(data))
+
         content = [text, image_file] if image is not None else [text]
         return content, embed
 
