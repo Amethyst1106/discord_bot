@@ -164,7 +164,13 @@ class ChatAI:
         logger.error(f"summary : {word}" + (f"\n{order}" if order else ""))
         prompt = f"以下の文を、{length}文字程度で要約して。{order}。句点で改行して。\n" + text
         response = await self.chat_ai.send_message_async(prompt)
-        result = response.text
-        logger.error("result : " + str(len(result)) + "文字")
-        logger.error("回答完了\n")
+        try:
+            result = response.text
+            logger.error("result : " + str(len(result)) + "文字")
+            logger.error("回答完了\n")
+        except genai.types.StopCandidateException as e:
+            result = text + "\n\n" + str(e) + " により回答不能です。"
+        except Exception as e:
+            logger.error(e)
+            result = text + "\n\n" + str(type(e)) + "が発生しました。"
         return result
