@@ -157,10 +157,12 @@ async def wikipedia(interaction: discord.Interaction, word: str, order: str = ""
                     + f"<{search_result[2]}>\n"\
                     + await chat_ai.get_summary(search_result[0], search_result[1], order, length)
         except genai.types.StopCandidateException as e:
-            result = form_question(interaction.user.display_name, f"項目名：{search_result[0]}") + str(e) + " により回答不能です。"
+            result = form_question(interaction.user.display_name, word)\
+                    + f"項目名：{search_result[0]}\n" + str(e) + " により回答不能です。"
         except Exception as e:
             logger.error(e)
-            result = form_question(interaction.user.display_name, f"項目名：{search_result[0]}") + str(type(e)) + "が発生しました。"
+            result = form_question(interaction.user.display_name, word)\
+                    + f"項目名：{search_result[0]}\n" + str(type(e)) + "が発生しました。"
     else:
         result = form_question(interaction.user.display_name, 
                                 f"{word}" + (f"\n{order}" if order else ""))\
