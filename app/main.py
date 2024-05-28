@@ -154,7 +154,7 @@ async def wikipedia(interaction: discord.Interaction, word: str, order: str = ""
         result = form_question(interaction.user.display_name, f"{word}\n{order}")\
                 + f"項目名：{search_result[0]}\n"\
                 + f"<{search_result[2]}>\n"\
-                + chat_ai.get_summary(search_result[0], search_result[1], order, length)
+                + await chat_ai.get_summary(search_result[0], search_result[1], order, length)
     else:
         result = form_question(interaction.user.display_name, 
                                 f"{word}" + (f"\n{order}" if order else ""))\
