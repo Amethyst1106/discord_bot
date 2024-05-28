@@ -62,18 +62,19 @@ class ChatAI:
                 content, embed = await self._form_content(i, text, image, self.prompt)
                 response = await self.chat_ai.send_message_async(content)
                 result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
-
-                if len(result) > 2000:
+                
+                # 2000文字超えるとdiscord側のエラーになるので再トライ
+                if len(result) > 2000:  
                     i += 100
-                    result = ""  # 2000文字超えるとdiscord側のエラーになるので再トライ
+                    logger.error("result : " + str(len(result)) + "文字")
+                    result = "" 
 
             except genai.types.StopCandidateException as e:
                 result = form_question(name, text) + str(e) + " により回答不能です。"
             except Exception as e:
                 logger.error(e)
                 result = form_question(name, text) + str(type(e)) + "が発生しました。"
-            logger.error("result : " + str(len(result)) + "文字")
-
+        logger.error("result : " + str(len(result)) + "文字")
         logger.error("回答完了\n")
         return result, embed
 
