@@ -155,7 +155,7 @@ class ChatAI:
     async def get_summary(self, word, text, order, length):
         logger.error(f"summary : {word}" + (f"\n{order}" if order else ""))
         prompt = f"以下の文を、{length}文字程度で要約して。{order}。句点で改行して。\n" + text
-        response = self.chat_ai.send_message_async(prompt)
+        response = await self.chat_ai.send_message_async(prompt)
         result = response.text
         logger.error("result : " + str(len(result)) + "文字")
         logger.error("回答完了\n")
