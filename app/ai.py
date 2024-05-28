@@ -59,7 +59,7 @@ class ChatAI:
         result = ""
         while(result == ""):
             try:
-                content, embed = self._form_content(i, text, image, self.prompt)
+                content, embed = await self._form_content(i, text, image, self.prompt)
                 response = await self.chat_ai.send_message_async(content)
                 result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
 
