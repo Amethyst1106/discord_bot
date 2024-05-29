@@ -1,10 +1,5 @@
 ﻿import google.generativeai as genai
-import discord
-from tools import form_question
-from PIL import Image
-import aiohttp
-from io import BytesIO
-import requests
+from tools import form_question, get_files_and_embed
 from logging import getLogger
 
 
@@ -47,7 +42,7 @@ class ChatAI:
         self.temperature = None
 
     # 回答
-    async def return_answer(self, interaction, text, image = None):
+    async def return_answer(self, interaction, text, image = None, audio = None):
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
@@ -59,7 +54,7 @@ class ChatAI:
         result = ""
         while(result == ""):
             try:
-                content, embed = await self._form_content(i, text, image, self.prompt)
+                content, embed = await self._form_content(i, text, image, audio, self.prompt)
                 response = await self.chat_ai.send_message_async(content)
                 result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
 
@@ -81,21 +76,12 @@ class ChatAI:
         return result, embed
 
     # 入力コンテンツの整形
-    async def _form_content(self, i, text, image = None, prompt = []):
+    async def _form_content(self, i, text, image = None, audio = None, prompt = []):
         limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
         text = limit_prompt + prompt_text + text
-        embed = None
-        if image is not None:
-            embed = discord.Embed(title="画像", color=0xff0000)
-            embed.set_image(url=image.url)
-            data = requests.get(image.url)
-            async with aiohttp.ClientSession() as session:
-                async with session.get(image.url) as response:
-                    data = await response.read()
-                    image_file = Image.open(BytesIO(data))
-
-        content = [text, image_file] if image is not None else [text]
+        files, embed = await get_files_and_embed(image=image, audio=audio)
+        content = [text] + files if image is not None else [text]
         return content, embed
 
     # 履歴とコンフィグをリセット

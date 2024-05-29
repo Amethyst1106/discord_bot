@@ -65,11 +65,15 @@ async def on_disconnect():
 #回答
 @tree.command(name="chat", description="送った内容に返答してくれます")
 @app_commands.choices(model = choice_list)
-async def chat(interaction: discord.Interaction, text: str, image: discord.Attachment = None,  model: str = "flash"):
+async def chat(interaction: discord.Interaction, 
+                text: str, 
+                image: discord.Attachment = None, 
+                audio: discord.Attachment = None,
+                model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result, embed = await chat_ai.return_answer(interaction, text, image)
+    result, embed = await chat_ai.return_answer(interaction, text, image, audio)
     await interaction.followup.send(result, embed=embed)
 
 #履歴をリセット
