@@ -42,7 +42,7 @@ class ChatAI:
         self.temperature = None
 
     # 回答
-    async def return_answer(self, interaction, text, image = None, audio = None):
+    async def return_answer(self, interaction, text, image = None):
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
@@ -54,7 +54,7 @@ class ChatAI:
         result = ""
         while(result == ""):
             try:
-                content, embed = await self._form_content(i, text, image, audio, self.prompt)
+                content, embed = await self._form_content(i, text, image, self.prompt)
                 response = await self.chat_ai.send_message_async(content)
                 result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
 
@@ -76,11 +76,11 @@ class ChatAI:
         return result, embed
 
     # 入力コンテンツの整形
-    async def _form_content(self, i, text, image = None, audio = None, prompt = []):
+    async def _form_content(self, i, text, image = None, prompt = []):
         limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
         text = limit_prompt + prompt_text + text
-        files, embed = await get_files_and_embed(image=image, audio=audio)
+        files, embed = await get_files_and_embed(image=image)
         content = [text] + files if image is not None else [text]
         return content, embed
 

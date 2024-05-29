@@ -68,12 +68,11 @@ async def on_disconnect():
 async def chat(interaction: discord.Interaction, 
                 text: str, 
                 image: discord.Attachment = None, 
-                audio: discord.Attachment = None,
                 model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result, embed = await chat_ai.return_answer(interaction, text, image, audio)
+    result, embed = await chat_ai.return_answer(interaction, text, image)
     await interaction.followup.send(result, embed=embed)
 
 #履歴をリセット
