@@ -1,5 +1,12 @@
-﻿import wikipedia
+﻿from bs4 import BeautifulSoup as bs
+import aiohttp
+import wikipedia
 wikipedia.set_lang("ja")
+
+async def fetch_html(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.text()
 
 def get_wikipedia_text(word):
     search_list = wikipedia.search(word)

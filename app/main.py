@@ -6,6 +6,7 @@ from discord import app_commands
 import ai, search
 from tools import form_question
 from server import server_thread
+from search import fetch_html
 
 from logging import getLogger
 logger = getLogger(__name__)
@@ -153,28 +154,50 @@ async def wikipedia(interaction: discord.Interaction, word: str, order: str = ""
     guild_id = interaction.guild_id
     chat_ai = AIs_dic["flash"][guild_id]
     search_result = search.get_wikipedia_text(word)
-    if search_result[0]:
+    page_title = search_result[0]
+    name = interaction.user.display_name
+    if page_title:
         try:
-            result = form_question(interaction.user.display_name, f"{word}" + (f"\n{order}" if order else ""))\
-                    + f"項目名：{search_result[0]}\n"\
+            result = form_question(name, f"{word}" + (f"\n{order}" if order else ""))\
+                    + f"項目名：{page_title}\n"\
                     + f"<{search_result[2]}>\n"\
-                    + await chat_ai.get_summary(search_result[0], search_result[1], order, length)
+                    + await chat_ai.get_summary(page_title, search_result[1], order, length)
         except genai.types.StopCandidateException as e:
-            result = form_question(interaction.user.display_name, word)\
-                    + f"項目名：{search_result[0]}\n" + f"<{search_result[2]}>\n"\
+            result = form_question(name, word)\
+                    + f"項目名：{page_title}\n" + f"<{search_result[2]}>\n"\
                     + str(e) + " により回答不能です。"
         except Exception as e:
             logger.error(e)
-            result = form_question(interaction.user.display_name, word)\
-                    + f"項目名：{search_result[0]}\n" + f"<{search_result[2]}>\n"\
+            result = form_question(name, word)\
+                    + f"項目名：{page_title}\n" + f"<{search_result[2]}>\n"\
                     + str(type(e)) + "が発生しました。"
     else:
-        result = form_question(interaction.user.display_name, 
-                                f"{word}" + (f"\n{order}" if order else ""))\
+        result = form_question(name, f"{word}" + (f"\n{order}" if order else ""))\
                 + search_result[1]
     await interaction.followup.send(result)
 
 
+# URL先のページを要約
+@tree.command(name="summarize", description="URL先をのページを要約します")
+async def summarize(interaction: discord.Interaction, url: str, order: str = "", length: int = 300):
+    await interaction.response.defer()
+    name = interaction.user.display_name
+    guild_id = interaction.guild_id
+    chat_ai = AIs_dic["flash"][guild_id]
+    try:
+        html = await fetch_html(url)
+        summary = await chat_ai.get_summary(html, order, length)
+        result = form_question(name, order)\
+                    + f"<{url}>\n"\
+                    + summary
+    except Exception as e:
+        logger.error(e)
+        result = form_question(name, order)\
+                + f"<{url}>\n"\
+                + str(type(e)) + "が発生しました。"
+        
+    await interaction.followup.send(result)
+    
 #------------------------------bot動作------------------------------------
 # Koyeb用 サーバー立ち上げ
 server_thread()
