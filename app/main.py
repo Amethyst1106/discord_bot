@@ -187,13 +187,12 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
     try:
         html = await fetch_html(url)
         summary = await chat_ai.get_summary(html, order, length)
-        result = form_question(name, order)\
+        result = form_question(name, f"{url}" + (f"\n{order}" if order else ""))\
                     + f"<{url}>\n"\
                     + summary
     except Exception as e:
         logger.error(e)
-        result = form_question(name, order)\
-                + f"<{url}>\n"\
+        result = form_question(name, f"{url}" + (f"\n{order}" if order else ""))\
                 + str(type(e)) + "が発生しました。"
         
     await interaction.followup.send(result)
