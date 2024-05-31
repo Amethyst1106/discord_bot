@@ -1,7 +1,7 @@
 ﻿import google.generativeai as genai
 from tools import form_question, get_files_and_embed
 from logging import getLogger
-
+import discord
 
 logger = getLogger(__name__)
 
@@ -50,36 +50,34 @@ class ChatAI:
             return "画像はflashに渡してください", None
         name = interaction.user.display_name
         embed = None
-        i = 0
+        text_file = None
         result = ""
-        while(result == ""):
-            try:
-                content, embed = await self._form_content(i, text, image, self.prompt)
-                response = await self.chat_ai.send_message_async(content)
+        try:
+            content, embed = await self._form_content(text, image, self.prompt)
+            response = await self.chat_ai.send_message_async(content)
+
+            # 2000文字超えるとdiscord側のエラーになるのでtextに
+            if len(result) > 2000:
+                result = form_question(name, content[0]) + f"【回答({self.name})】\n"
+                with open("response.txt", "w", encoding="utf-8") as file:
+                    file.write(result)
+                text_file = discord.File("response.txt")
+            else:
                 result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
 
-                # 2000文字超えるとdiscord側のエラーになるので再トライ
-                if len(result) > 2000:  
-                    i += 100
-                    logger.error("result : " + str(len(result)) + "文字")
-                    result = "" 
-                if i > 1500:
-                    result = "AIが長文しか出力しないため、打ち切りました。"
-
-            except genai.types.StopCandidateException as e:
-                result = form_question(name, text) + str(e) + " により回答不能です。"
-            except Exception as e:
-                logger.error(e)
-                result = form_question(name, text) + str(type(e)) + "が発生しました。"
+        except genai.types.StopCandidateException as e:
+            result = form_question(name, text) + str(e) + " により回答不能です。"
+        except Exception as e:
+            logger.error(e)
+            result = form_question(name, text) + str(type(e)) + "が発生しました。"
         logger.error("result : " + str(len(result)) + "文字")
         logger.error("回答完了\n")
-        return result, embed
+        return result, embed, text_file
 
     # 入力コンテンツの整形
-    async def _form_content(self, i, text, image = None, prompt = []):
-        limit_prompt = str(2000 - i) + "文字以内で答えて。" if i > 0 else ""
+    async def _form_content(self, text, image = None, prompt = []):
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
-        text = limit_prompt + prompt_text + text
+        text = prompt_text + text
         files, embed = await get_files_and_embed(image=image)
         content = [text] + files if image is not None else [text]
         return content, embed
