@@ -78,7 +78,7 @@ async def chat(interaction: discord.Interaction,
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
     result, embed, text_file = await chat_ai.return_answer(interaction, text, image)
-    if text_file is None:
+    if text_file is not None:
         await interaction.followup.send(result, embed=embed, file=text_file)
     else:
         await interaction.followup.send(result, embed=embed)
