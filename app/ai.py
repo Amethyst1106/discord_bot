@@ -55,15 +55,13 @@ class ChatAI:
         try:
             content, embed = await self._form_content(text, image, self.prompt)
             response = await self.chat_ai.send_message_async(content)
-
+            result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
             # 2000文字超えるとdiscord側のエラーになるのでtextに
-            if len(response.text) > 2000:
-                result = form_question(name, content[0]) + f"【回答({self.name})】\n"
+            if len(result) > 2000:
                 with open("response.txt", "w", encoding="utf-8") as file:
-                    file.write(response.text)
+                    file.write(result[2000:])
                 text_file = discord.File("response.txt")
-            else:
-                result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
+                result = result[:2000]
 
         except genai.types.StopCandidateException as e:
             result = form_question(name, text) + str(e) + " により回答不能です。"
