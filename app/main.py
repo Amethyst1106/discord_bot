@@ -78,7 +78,10 @@ async def chat(interaction: discord.Interaction,
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
     result, embed, text_file = await chat_ai.return_answer(interaction, text, image)
-    await interaction.followup.send(result, embed=embed, file=text_file)
+    if text_file is None:
+        await interaction.followup.send(result, embed=embed, file=text_file)
+    else:
+        await interaction.followup.send(result, embed=embed)
 
 #履歴をリセット
 @tree.command(name="reset_history", description="記憶をリセットします")
