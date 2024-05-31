@@ -173,6 +173,7 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
         
     await interaction.followup.send(result)
     
+    
 #------------------------------bot動作------------------------------------
 # Koyeb用 サーバー立ち上げ
 server_thread()

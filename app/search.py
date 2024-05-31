@@ -6,7 +6,7 @@ wikipedia.set_lang("ja")
 async def fetch_html(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            return await response.text()
+            return await response.content.read()
 
 def get_wikipedia_text(word):
     search_list = wikipedia.search(word)
