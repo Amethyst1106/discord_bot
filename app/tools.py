@@ -2,7 +2,6 @@
 from PIL import Image
 import aiohttp
 from io import BytesIO
-from pydub import AudioSegment
 
 # 質問の整形
 def form_question(name, text):
