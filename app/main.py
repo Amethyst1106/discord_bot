@@ -168,7 +168,7 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
                     + summary
     except Exception as e:
         logger.error(e)
-        result = form_question(name, f"{url}" + (f"\n{order}" if order else ""))\
+        result = form_question(name, f"<{url}>" + (f"\n{order}" if order else ""))\
                 + str(type(e)) + "が発生しました。"
         
     await interaction.followup.send(result)
