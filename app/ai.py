@@ -84,10 +84,9 @@ class ChatAI:
         content = [text] + files if image is not None else [text]
         return content, embed
 
-    # 履歴とコンフィグをリセット
+    # 履歴をリセット
     def reset_history(self):
         self.chat_ai = self.model.start_chat(history=[])
-        self.temperature = None
         result = "記憶をリセットしました。"
         self.loging_info(result)
         return f"{self.name} : {result}"

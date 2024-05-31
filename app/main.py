@@ -39,8 +39,12 @@ image_model = genai.GenerativeModel("gemini-pro-vision",
 nomal_AIs = {}
 super_AIs = {}
 flash_AIs = {}
-AIs_dic = {"flash" : flash_AIs, "super" : super_AIs, "nomal" : nomal_AIs,  }
-choice_list = [app_commands.Choice(name=model, value=model) for model in AIs_dic.keys()]
+AIs_dic = {"flash" : flash_AIs, "super" : super_AIs, "nomal" : nomal_AIs}
+models_choice = [app_commands.Choice(name=model, value=model) for model in AIs_dic.keys()]
+prompt_actions = ["reset", "show", "add", "delete"]
+prompt_choice = [app_commands.Choice(name = action, value = action) for action in prompt_actions]
+config_actions = ["show", "set"]
+config_choice = [app_commands.Choice(name = action, value = action) for action in config_actions]
 
 # botの設定
 intents = discord.Intents.none()  #スラッシュコマンド以外受け取らない
@@ -65,7 +69,7 @@ async def on_disconnect():
 #------------------------------スラッシュコマンド------------------------------------
 #回答
 @tree.command(name="chat", description="送った内容に返答してくれます")
-@app_commands.choices(model = choice_list)
+@app_commands.choices(model = models_choice)
 async def chat(interaction: discord.Interaction, 
                 text: str, 
                 image: discord.Attachment = None, 
@@ -78,7 +82,7 @@ async def chat(interaction: discord.Interaction,
 
 #履歴をリセット
 @tree.command(name="reset_history", description="記憶をリセットします")
-@app_commands.choices(model = choice_list)
+@app_commands.choices(model = models_choice)
 async def reset_history(interaction: discord.Interaction, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
@@ -86,65 +90,35 @@ async def reset_history(interaction: discord.Interaction, model: str = "flash"):
     result = chat_ai.reset_history()
     await interaction.followup.send(result)
 
-#プロンプトをリセット
-@tree.command(name="reset_prompt", description="命令をリセットします")
-@app_commands.choices(model = choice_list)
-async def reset_prompt(interaction: discord.Interaction, model: str = "flash"):
+#プロンプト
+@tree.command(name="prompt", description="命令についてのコマンド")
+@app_commands.choices(model = models_choice, action = prompt_choice)
+async def prompt(interaction: discord.Interaction, action:str, prompt: str =  "", index: int = 0 , model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result = chat_ai.reset_prompt()
+    if   action == "reset":
+        result = chat_ai.reset_prompt()
+    elif action == "show":
+        result = await chat_ai.show_prompt()
+    elif action == "add":
+        result = chat_ai.add_prompt(prompt)
+    elif action == "delete":
+        result = chat_ai.delete_prompt(index)
     await interaction.followup.send(result)
 
-#プロンプトを追加
-@tree.command(name="add_prompt", description="命令を追加します")
-@app_commands.choices(model = choice_list)
-async def add_prompt(interaction: discord.Interaction, prompt: str, model: str = "flash"):
+# コンフィグ
+@tree.command(name="config", description="コンフィグについてのコマンド")
+@app_commands.choices(model = models_choice, action = config_choice)
+async def config(interaction: discord.Interaction,
+                        action:str, temperature: float = None, model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result = chat_ai.add_prompt(prompt)
-    await interaction.followup.send(result)
-
-#プロンプトを見る
-@tree.command(name="show_prompt", description="命令を表示します")
-@app_commands.choices(model = choice_list)
-async def show_prompt(interaction: discord.Interaction, model: str = "flash"):
-    await interaction.response.defer()
-    guild_id = interaction.guild_id
-    chat_ai = AIs_dic[model][guild_id]
-    result = await chat_ai.show_prompt()
-    await interaction.followup.send(result)
-
-#プロンプトを消す
-@tree.command(name="delete_prompt", description="命令を削除します")
-@app_commands.choices(model = choice_list)
-async def delete_prompt(interaction: discord.Interaction, index: int, model: str = "flash"):
-    await interaction.response.defer()
-    guild_id = interaction.guild_id
-    chat_ai = AIs_dic[model][guild_id]
-    result = chat_ai.delete_prompt(index)
-    await interaction.followup.send(result)
-
-# コンフィグを変更する
-@tree.command(name="set_config", description="コンフィグを設定します。")
-@app_commands.choices(model = choice_list)
-async def set_config(interaction: discord.Interaction,
-                        temperature: float = None, model: str = "flash"):
-    await interaction.response.defer()
-    guild_id = interaction.guild_id
-    chat_ai = AIs_dic[model][guild_id]
-    result = chat_ai.set_config(temperature)
-    await interaction.followup.send(result)
-
-# コンフィグを見る
-@tree.command(name="show_config", description="コンフィグを表示します")
-@app_commands.choices(model = choice_list)
-async def show_config(interaction: discord.Interaction, model: str = "flash"):
-    await interaction.response.defer()
-    guild_id = interaction.guild_id
-    chat_ai = AIs_dic[model][guild_id]
-    result = await chat_ai.show_config()
+    if action == "set":
+        result = chat_ai.set_config(temperature)
+    elif action == "show":
+        result = await chat_ai.show_config()
     await interaction.followup.send(result)
 
 # Wikipediaの記事を要約
