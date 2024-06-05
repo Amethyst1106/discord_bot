@@ -155,7 +155,7 @@ async def wikipedia(interaction: discord.Interaction, word: str, order: str = ""
 
 
 # URL先のページを要約
-@tree.command(name="summarize", description="URL先をのページを要約します")
+@tree.command(name="summarize", description="URL先のページを要約します")
 async def summarize(interaction: discord.Interaction, url: str, order: str = "", length: int = 300):
     await interaction.response.defer()
     name = interaction.user.display_name
