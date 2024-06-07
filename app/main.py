@@ -33,8 +33,6 @@ default_config = genai.GenerationConfig(temperature=0.7)
 nomal_model_name = "gemini-1.0-pro-latest"
 super_model_name = "gemini-1.5-pro-latest"
 flash_model_name = "gemini-1.5-flash-latest"
-image_model = genai.GenerativeModel("gemini-pro-vision",
-                                    safety_settings=safety_settings)
 
 nomal_AIs = {}
 super_AIs = {}
@@ -45,6 +43,7 @@ prompt_actions = ["reset", "show", "add", "delete"]
 prompt_choice = [app_commands.Choice(name = action, value = action) for action in prompt_actions]
 config_actions = ["show", "set"]
 config_choice = [app_commands.Choice(name = action, value = action) for action in config_actions]
+proseka_AI = ai.ProsekaAI()
 
 # botの設定
 intents = discord.Intents.none()  #スラッシュコマンド以外受け取らない
@@ -174,7 +173,22 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
         
     await interaction.followup.send(result)
     
-    
+
+@tree.command(name="proseka", description="プロセカ曲の難易度を返します")
+@app_commands.choices(reset = app_commands.Choice([False, True]))
+async def proseka(interaction: discord.Interaction, music_name: str = "", reset: bool = False):
+    await interaction.response.defer()
+    if reset:
+        result = proseka_AI.reset_history()
+    else:
+        try:
+            result = proseka_AI.return_level(music_name)
+        except Exception as e:
+            logger.error(e)
+            result = str(type(e)) + "が発生しました。"
+            
+    await interaction.followup.send(result)
+
 #------------------------------bot動作------------------------------------
 # Koyeb用 サーバー立ち上げ
 server_thread()

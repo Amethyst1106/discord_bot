@@ -1,12 +1,12 @@
 ﻿import google.generativeai as genai
+from app.search import fetch_html
 from tools import form_question, get_files_and_embed
 from logging import getLogger
 import discord
 
 logger = getLogger(__name__)
 
-class ChatAI:
-    default_safety_settings = [{
+default_safety_settings = [{
     "category": "HARM_CATEGORY_HARASSMENT",
     "threshold": "BLOCK_NONE"
 }, {
@@ -20,8 +20,9 @@ class ChatAI:
     "threshold": "BLOCK_NONE"
 }]
 
+class ChatAI:
     def __init__(self, 
-                guild_id, 
+                guild_id = None, 
                 version = "gemini-1.0-pro-latest",
                 name = "通常モデル",
                 temperature = None,
@@ -155,3 +156,44 @@ class ChatAI:
             logger.error(e)
             result = text + "\n\n" + str(type(e)) + "が発生しました。"
         return result
+
+# プロセカ用
+class ProsekaAI(ChatAI):
+    def __init__(self,
+                guild_id = None, 
+                version = "gemini-1.5-flash-latest",
+                name = "プロセカモデル",
+                temperature = None,
+                safety_settings = default_safety_settings,
+                history = []):
+        super().__init__(self, guild_id, version, name, temperature, safety_settings, history)
+        self.all_music_page = fetch_html("https://pjsekai.com/?aad6ee23b0")
+        self.master_level_page = fetch_html("https://pjsekai.com/?aa95a0f97c")
+        self.have_page = False
+    
+    # プロセカ用
+    async def return_level(self, music_name):
+        if not self.have_page:
+            self.base_history()
+        self.loging_info()
+        logger.error("プロセカ受付")
+        logger.error("曲名 : " + music_name)
+        level_prompt = f"表Aから、{music_name}の全レベルの難易度を簡潔に答えて。"
+        responseA = await self.chat_ai.send_message_async(level_prompt)
+        master_prompt = f"表Bから、{music_name}の難易度を教えて。"
+        responseB = await self.chat_ai.send_message_async(master_prompt)
+        result = "曲名 : " + music_name + "\n\n" + responseA.text + "\n" + responseB.text
+        return result
+    
+    def reset_history(self):
+        result = super().reset_history()
+        self.base_history()
+        logger.error("プロセカリセット")
+        return result
+
+    def base_history(self):
+        page_prompt = "以降はこの表の内容をもとに答えてください。"\
+        + "ここから表A\n" + self.all_music_page \
+        + "ここから表B\n" + self.master_level_page
+        self.chat_ai.send_message(page_prompt)
+        self.have_page = True

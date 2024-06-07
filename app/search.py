@@ -6,6 +6,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
+# URLからhtml(body)を返す
 async def fetch_html(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -23,6 +24,7 @@ async def fetch_html(url):
                 raise err
             return None
 
+# wordに近い項目の全文を返す
 def get_wikipedia_text(word):
     search_list = wikipedia.search(word)
     try:
