@@ -13,7 +13,9 @@ async def fetch_html(url):
             for encoding in encodings:
                 try:
                     html = await response.text(encoding=encoding)
-                    return str(bs(html, "html.parser").find('body'))
+                    bodys = str(bs(html, "html.parser").findAll('body'))
+                    body = "\n".join(bodys)
+                    return body
                 except UnicodeDecodeError as e:
                     err = e
                     continue
