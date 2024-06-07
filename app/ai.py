@@ -185,9 +185,9 @@ class ProsekaAI(ChatAI):
         result = "曲名 : " + music_name + "\n\n" + responseA.text + "\n" + responseB.text
         return result
     
-    def reset_history(self):
+    async def reset_history(self):
         result = super().reset_history()
-        self.base_history()
+        await self.base_history()
         logger.error("プロセカリセット")
         return result
 
