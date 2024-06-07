@@ -7,14 +7,14 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 # URLからhtml(body)を返す
-async def fetch_html(url):
+async def fetch_html(url, tags = ["body"]):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             encodings = ["utf-8", "shift_jis", "iso-8859-1", "euc-jp", "gb2312", "big5"]
             for encoding in encodings:
                 try:
                     html = await response.text(encoding=encoding)
-                    bodys = [str(b) for b in bs(html, "html.parser").findAll('body')]
+                    bodys = [b.get_text(separator=' ') for b in bs(html, "html.parser").findAll(tags)]
                     body = "".join(bodys)
                     return body if len(body) > 30 else html
                 except UnicodeDecodeError as e:
