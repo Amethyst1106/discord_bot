@@ -15,7 +15,7 @@ async def fetch_html(url):
                     html = await response.text(encoding=encoding)
                     bodys = [str(b) for b in bs(html, "html.parser").findAll('body')]
                     body = "".join(bodys)
-                    return body
+                    return body if len(body) > 30 else html
                 except UnicodeDecodeError as e:
                     err = e
                     continue
