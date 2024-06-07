@@ -3,6 +3,7 @@ import aiohttp
 import wikipedia
 wikipedia.set_lang("ja")
 from logging import getLogger
+import re
 
 logger = getLogger(__name__)
 
@@ -10,16 +11,15 @@ logger = getLogger(__name__)
 async def fetch_html(url, tags = ["body"]):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            encodings = ["utf-8", "shift_jis", "iso-8859-1", "euc-jp", "gb2312", "big5"]
-            for encoding in encodings:
-                try:
-                    html = await response.text(encoding=encoding)
-                    bodys = [b.get_text(separator=' ') for b in bs(html, "html.parser").findAll(tags)]
-                    body = "".join(bodys)
-                    return body if len(body) > 30 else html
-                except UnicodeDecodeError as e:
-                    err = e
-                    continue
+            content = await response.read()
+            try:
+                charset = get_charset(content)
+                html = content.decode(encoding=charset, errors='ignore')
+                bodys = [b.get_text(separator=" ") for b in bs(html, "html.parser").findAll(tags)]
+                body = "".join(bodys)
+                return body if len(body) > 30 else html
+            except UnicodeDecodeError as e:
+                err = e
             if err:
                 raise err
             return None
@@ -46,3 +46,13 @@ def get_formed_result(word):
     page = wikipedia.page(word)
     text = page.content.split("\n\n\n== 符号位置")[0].split("\n\n\n== 脚注")[0]
     return [word, text, page.url]
+
+# contentからcharsetを取り出す
+def get_charset(content):
+    # first_htmlからcharsetを抽出
+    first_html = content.decode(encoding="utf-8", errors='ignore')
+    charset_pattern = re.compile(r'<meta.*?charset=(.*?)[\s\'"\/>]')
+    charset = charset_pattern.search(first_html).group(1)
+    if charset == "x-sjis":
+        charset = "sjis"
+    return charset
