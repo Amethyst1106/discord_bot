@@ -61,9 +61,10 @@ async def on_ready():
         flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル")
     logger.error('{0.user} がログインしたよ'.format(client))
 
+@client.event
 #接続が切れたとき
 async def on_disconnect():
-    logger.error("再接続中・・・")
+    logger.error("接続が切断されました")
 
 
 #------------------------------スラッシュコマンド------------------------------------
@@ -189,5 +190,10 @@ except discord.HTTPException as e:
         logger.error("レート上限だよ")
     elif e.status == 400:
         logger.error("送ろうとした文が2000文字を超えてたよ")
+    else:
+        raise e
+except discord.errors.ConnectionClosed as e:
+    if e.code == 1000:
+        logger.error("再接続中・・・")
     else:
         raise e
