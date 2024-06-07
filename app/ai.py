@@ -178,7 +178,7 @@ class ProsekaAI(ChatAI):
         self.loging_info()
         logger.error("プロセカ受付")
         logger.error("曲名 : " + music_name)
-        master_prompt = f"表から、{music_name}の難易度について。"
+        master_prompt = f"表から、{music_name}のレベルと難易度について。"
         response = await self.chat_ai.send_message_async(master_prompt)
         result = "曲名 : " + music_name + "\n\n" + response.text
         return result
