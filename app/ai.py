@@ -178,11 +178,9 @@ class ProsekaAI(ChatAI):
         self.loging_info()
         logger.error("プロセカ受付")
         logger.error("曲名 : " + music_name)
-        level_prompt = f"表Aから、{music_name}の全レベルの難易度を簡潔に答えて。"
-        responseA = await self.chat_ai.send_message_async(level_prompt)
-        master_prompt = f"表Bから、{music_name}の難易度を教えて。"
-        responseB = await self.chat_ai.send_message_async(master_prompt)
-        result = "曲名 : " + music_name + "\n\n" + responseA.text + "\n" + responseB.text
+        master_prompt = f"表から、{music_name}の難易度について。"
+        response = await self.chat_ai.send_message_async(master_prompt)
+        result = "曲名 : " + music_name + "\n\n" + response.text
         return result
     
     async def reset_history(self):
