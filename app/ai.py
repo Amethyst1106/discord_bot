@@ -166,7 +166,7 @@ class ProsekaAI(ChatAI):
                 temperature = None,
                 safety_settings = default_safety_settings,
                 history = []):
-        super().__init__(self, guild_id, version, name, temperature, safety_settings, history)
+        super().__init__(guild_id, version, name, temperature, safety_settings, history)
         self.all_music_page = fetch_html("https://pjsekai.com/?aad6ee23b0")
         self.master_level_page = fetch_html("https://pjsekai.com/?aa95a0f97c")
         self.have_page = False
