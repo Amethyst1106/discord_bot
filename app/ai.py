@@ -174,7 +174,7 @@ class ProsekaAI(ChatAI):
     # プロセカ用
     async def return_level(self, music_name):
         if not self.have_page:
-            self.base_history()
+            await self.base_history()
         self.loging_info()
         logger.error("プロセカ受付")
         logger.error("曲名 : " + music_name)
@@ -197,5 +197,5 @@ class ProsekaAI(ChatAI):
         page_prompt = "以降はこの表の内容をもとに答えてください。"\
         + "ここから表A\n" + self.all_music_page \
         + "ここから表B\n" + self.master_level_page
-        self.chat_ai.send_message(page_prompt)
+        await self.chat_ai.send_message_async(page_prompt)
         self.have_page = True
