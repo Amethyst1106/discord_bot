@@ -179,7 +179,7 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
 async def proseka(interaction: discord.Interaction, music_name: str, reset: str = ""):
     await interaction.response.defer()
     if reset == "reset":
-        result = proseka_AI.reset_history()
+        result = await proseka_AI.reset_history()
     else:
         try:
             result = await proseka_AI.return_level(music_name)
