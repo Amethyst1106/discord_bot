@@ -175,7 +175,7 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
     
 
 @tree.command(name="proseka", description="プロセカ曲の難易度を返します")
-@app_commands.choices(reset = app_commands.Choice([False, True]))
+@app_commands.choices(reset = [app_commands.Choice(name = tf, value = tf) for tf in [False, True]])
 async def proseka(interaction: discord.Interaction, music_name: str = "", reset: bool = False):
     await interaction.response.defer()
     if reset:
