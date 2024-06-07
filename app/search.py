@@ -2,13 +2,24 @@
 import aiohttp
 import wikipedia
 wikipedia.set_lang("ja")
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 async def fetch_html(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            encoding = response.charset or 'utf-8'
-            html = await response.text(encoding=encoding)
-            return html
+            encodings = ["utf-8", "shift_jis", "iso-8859-1", "euc-jp", "gb2312", "big5"]
+            for encoding in encodings:
+                try:
+                    html = await response.text(encoding=encoding)
+                    return bs(html, "html.parser").find('body')
+                except UnicodeDecodeError as e:
+                    err = e
+                    continue
+            if err:
+                raise err
+            return None
 
 def get_wikipedia_text(word):
     search_list = wikipedia.search(word)
