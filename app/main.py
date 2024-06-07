@@ -175,14 +175,14 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
     
 
 @tree.command(name="proseka", description="プロセカ曲の難易度を返します")
-@app_commands.choices(reset = [app_commands.Choice(name = tf, value = tf) for tf in [False, True]])
-async def proseka(interaction: discord.Interaction, music_name: str = "", reset: bool = False):
+@app_commands.choices(reset = [app_commands.Choice(name = "reset", value = "reset")])
+async def proseka(interaction: discord.Interaction, music_name: str = "", reset: str = "reset"):
     await interaction.response.defer()
-    if reset:
+    if reset == "reset":
         result = proseka_AI.reset_history()
     else:
         try:
-            result = proseka_AI.return_level(music_name)
+            result = await proseka_AI.return_level(music_name)
         except Exception as e:
             logger.error(e)
             result = str(type(e)) + "が発生しました。"

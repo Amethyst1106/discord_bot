@@ -167,8 +167,8 @@ class ProsekaAI(ChatAI):
                 safety_settings = default_safety_settings,
                 history = []):
         super().__init__(guild_id, version, name, temperature, safety_settings, history)
-        self.all_music_page = fetch_html("https://pjsekai.com/?aad6ee23b0")
-        self.master_level_page = fetch_html("https://pjsekai.com/?aa95a0f97c")
+        self.all_music_page = ""
+        self.master_level_page = ""
         self.have_page = False
     
     # プロセカ用
@@ -191,7 +191,9 @@ class ProsekaAI(ChatAI):
         logger.error("プロセカリセット")
         return result
 
-    def base_history(self):
+    async def base_history(self):
+        self.all_music_page = await fetch_html("https://pjsekai.com/?aad6ee23b0")
+        self.master_level_page = await fetch_html("https://pjsekai.com/?aa95a0f97c")
         page_prompt = "以降はこの表の内容をもとに答えてください。"\
         + "ここから表A\n" + self.all_music_page \
         + "ここから表B\n" + self.master_level_page
