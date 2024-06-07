@@ -1,5 +1,5 @@
 ﻿import google.generativeai as genai
-from app.search import fetch_html
+from search import fetch_html
 from tools import form_question, get_files_and_embed
 from logging import getLogger
 import discord
