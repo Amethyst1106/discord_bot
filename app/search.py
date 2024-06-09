@@ -15,9 +15,10 @@ async def fetch_html(url, tags = ["body"]):
             try:
                 charset = get_charset(content)
                 html = content.decode(encoding=charset, errors='ignore')
-                bodys = [b.get_text(separator=" ") for b in bs(html, "html.parser").findAll(tags)]
-                body = "".join(bodys)
-                return body if len(body) > 30 else html
+                texts = [b.get_text(separator=" ") for b in bs(html, "html.parser").findAll(tags)]
+                text = "".join(texts)
+                return text if len(text) > 30 \
+                        else bs(html, "html.parser").get_text(separator=" ")
             except UnicodeDecodeError as e:
                 err = e
             if err:
@@ -52,7 +53,10 @@ def get_charset(content):
     # first_htmlからcharsetを抽出
     first_html = content.decode(encoding="utf-8", errors='ignore')
     charset_pattern = re.compile(r'<meta.*?charset=(.*?)[\s\'"\/>]')
-    charset = charset_pattern.search(first_html).group(1)
+    try:    
+        charset = charset_pattern.search(first_html).group(1)
+    except AttributeError:
+        charset = "UTF-8"
     if charset == "x-sjis":
         charset = "sjis"
     return charset
