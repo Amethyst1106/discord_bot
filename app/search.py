@@ -14,7 +14,10 @@ async def fetch_html(url, tags = ["body"]):
             content = await response.read()
             try:
                 charset = get_charset(content)
-                html = content.decode(encoding=charset, errors='ignore')
+                try:
+                    html = content.decode(encoding=charset, errors="ignore")
+                except LookupError as e:
+                    html = content.decode(encoding="UTF-8", errors="ignore")
                 texts = [b.get_text(separator=" ") for b in bs(html, "html.parser").findAll(tags)]
                 text = "".join(texts)
                 return text if len(text) > 30 \
