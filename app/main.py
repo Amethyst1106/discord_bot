@@ -72,12 +72,13 @@ async def on_disconnect():
 @app_commands.choices(model = models_choice)
 async def chat(interaction: discord.Interaction, 
                 text: str, 
-                image: discord.Attachment = None, 
+                image: discord.Attachment = None,
+                video: discord.Attachment = None,
                 model: str = "flash"):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result, embed, text_file = await chat_ai.return_answer(interaction, text, image)
+    result, embed, text_file = await chat_ai.return_answer(interaction, text, image, video)
     if text_file is not None:
         await interaction.followup.send(result, embed=embed, file=text_file)
     else:

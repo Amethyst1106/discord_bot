@@ -1,4 +1,5 @@
-﻿import google.generativeai as genai
+﻿import asyncio
+import google.generativeai as genai
 from search import fetch_html
 from tools import form_question, get_files_and_embed
 from logging import getLogger
@@ -43,18 +44,18 @@ class ChatAI:
         self.temperature = None
 
     # 回答
-    async def return_answer(self, interaction, text, image = None):
+    async def return_answer(self, interaction, text, image = None, video = None):
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
-        if self.name != "高速モデル" and image is not None:
-            return "画像はflashに渡してください", None
+        if self.name != "高速モデル" and (image is not None or video is not None):
+            return "画像はや動画はflashに渡してください", None
         name = interaction.user.display_name
         embed = None
         text_file = None
         result = ""
         try:
-            content, embed = await self._form_content(text, image, self.prompt)
+            content, embed = await self._form_content(text, image, video, self.prompt)
             response = await self.chat_ai.send_message_async(content)
             result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
             # 2000文字超えるとdiscord側のエラーになるのでtextに
@@ -74,12 +75,29 @@ class ChatAI:
         return result, embed, text_file
 
     # 入力コンテンツの整形
-    async def _form_content(self, text, image = None, prompt = []):
+    async def _form_content(self, text, image = None, video = None, prompt = []):
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
         text = prompt_text + text
         files, embed = await get_files_and_embed(image=image)
         content = [text] + files if image is not None else [text]
+        if video is not None:
+            video_url = self._upload_video(video)
+            content.append(video_url)
         return content, embed
+
+    # 動画の処理
+    async def _upload_video(self, video):
+        video_bytes = await video.read()
+        # 動画を一時ファイルに保存
+        with open("temp_video.mp4", "wb") as temp_file:
+            temp_file.write(video_bytes)
+        
+        # アップロード
+        upload_response = await asyncio.to_thread(genai.upload_file, "temp_video.mp4")
+        
+        # アップロードした動画のURLを取得
+        video_url = upload_response.url
+        return video_url
 
     # 履歴をリセット
     def reset_history(self):
