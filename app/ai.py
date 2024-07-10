@@ -93,13 +93,12 @@ class ChatAI:
             temp_file.write(video_bytes)
         
         # アップロード
-        uploaded_video = await asyncio.to_thread(genai.upload_file, "temp_video.mp4")
-        uploaded_video = await self.wait_for_processed(uploaded_video)
-
+        uploaded_video = await self.wait_for_processed()
         return uploaded_video
     
     # アップロード完了を待つ関数
-    async def wait_for_processed(self, uploaded_video):
+    async def wait_for_processed(self):
+        uploaded_video = genai.upload_file("temp_video.mp4")
         while uploaded_video.state.name == "PROCESSING":
             logger.error("Waiting for processed.")
             await asyncio.sleep(2)
