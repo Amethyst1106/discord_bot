@@ -99,7 +99,7 @@ class ChatAI:
         return uploaded_video
     
     # アップロード完了を待つ関数
-    async def wait_for_processed(uploaded_video):
+    async def wait_for_processed(self, uploaded_video):
         while uploaded_video.state.name == "PROCESSING":
             logger.error("Waiting for processed.")
             await asyncio.sleep(2)
