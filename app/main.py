@@ -80,7 +80,8 @@ async def chat(interaction: discord.Interaction,
     chat_ai = AIs_dic[model][guild_id]
     result, embed, text_file = await chat_ai.return_answer(interaction, text, image, video)
     files = []
-    for x in [text_file, video]:
+    video_file = discord.File(fp=video.fp, filename=video.filename) if video else None
+    for x in [text_file, video_file]:
         if x is not None:
             files.append(x)
     if files != []:
