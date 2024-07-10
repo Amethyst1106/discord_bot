@@ -81,8 +81,8 @@ class ChatAI:
         files, embed = await get_files_and_embed(image=image)
         content = [text] + files if image is not None else [text]
         if video is not None:
-            video_url = await self._upload_video(video)
-            content.append(video_url)
+            uploaded_video = await self._upload_video(video)
+            content.append(uploaded_video)
         return content, embed
 
     # 動画の処理
@@ -93,12 +93,9 @@ class ChatAI:
             temp_file.write(video_bytes)
         
         # アップロード
-        upload_response = await asyncio.to_thread(genai.upload_file, "temp_video.mp4")
-        logger.error(upload_response)
+        uploaded_video = await asyncio.to_thread(genai.upload_file, "temp_video.mp4")
 
-        # アップロードした動画のURLを取得
-        video_url = upload_response.url
-        return video_url
+        return uploaded_video
 
     # 履歴をリセット
     def reset_history(self):
