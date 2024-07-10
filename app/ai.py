@@ -94,7 +94,8 @@ class ChatAI:
         
         # アップロード
         upload_response = await asyncio.to_thread(genai.upload_file, "temp_video.mp4")
-        
+        logger.error(upload_response)
+
         # アップロードした動画のURLを取得
         video_url = upload_response.url
         return video_url
