@@ -81,7 +81,7 @@ class ChatAI:
         files, embed = await get_files_and_embed(image=image)
         content = [text] + files if image is not None else [text]
         if video is not None:
-            video_url = self._upload_video(video)
+            video_url = await self._upload_video(video)
             content.append(video_url)
         return content, embed
 
