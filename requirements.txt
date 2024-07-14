@@ -1,5 +1,5 @@
 ﻿discord.py==2.3.2
-google-generativeai==0.7.2
+google-generativeai==0.5.2
 pillow==10.3.0
 requests==2.32.2
 python-dotenv==1.0.1
