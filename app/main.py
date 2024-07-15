@@ -189,7 +189,7 @@ async def proseka(interaction: discord.Interaction, music_name: str, reset: str 
             result = str(type(e)) + "が発生しました。"
             
     await interaction.followup.send(result)
-    proseka_AI.reset_history()
+    await proseka_AI.reset_history()
     
 #------------------------------bot動作------------------------------------
 # Koyeb用 サーバー立ち上げ
