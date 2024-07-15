@@ -25,3 +25,10 @@ async def get_image_file(image):
             data = await response.read()
             image_file = Image.open(BytesIO(data))
     return image_file
+
+
+# 送信可能なファイルにする
+async def to_discord_file(file):
+    file_data = await file.read()
+    discord_file = discord.File(BytesIO(file_data), filename=file.filename)
+    return discord_file
