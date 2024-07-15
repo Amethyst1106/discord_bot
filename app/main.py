@@ -1,4 +1,5 @@
 ﻿import os
+import sys
 import discord
 import google.generativeai as genai
 from discord import app_commands
@@ -12,7 +13,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 # Gemini APIの設定
-genai.configure(api_key=os.environ['GEMINI_TOKEN'])
+genai.configure(api_key=os.environ["GEMINI_TOKEN"])
 
 safety_settings = [{
     "category": "HARM_CATEGORY_HARASSMENT",
@@ -81,7 +82,7 @@ async def chat(interaction: discord.Interaction,
     files = []
     if text_file is not None:
         files.append(text_file)
-    if file is not None: # Noneと画像を除く
+    if file is not None:
         files.append(await to_discord_file(file))
 
     if files != []:
@@ -196,6 +197,12 @@ async def proseka(interaction: discord.Interaction, music_name: str, reset: str 
     await interaction.followup.send(result)
     await proseka_AI.reset_history()
     
+@tree.command(name = "stop", description="管理用コマンド")
+async def stop(password: str):
+    if password == os.environ["STOP_PASSWORD"]:
+        client.close()
+        sys.exit()
+
 #------------------------------bot動作------------------------------------
 # Koyeb用 サーバー立ち上げ
 server_thread()
