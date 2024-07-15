@@ -24,8 +24,8 @@ default_safety_settings = [{
 class ChatAI:
     def __init__(self, 
                 guild_id = None, 
-                version = "gemini-1.0-pro-latest",
-                name = "通常モデル",
+                version = "gemini-1.5-flash-latest",
+                name = "高速モデル",
                 temperature = None,
                 safety_settings = default_safety_settings,
                 history = []):
@@ -42,6 +42,7 @@ class ChatAI:
         self.prompt = []
         self.history = history
         self.temperature = None
+
 
     # 回答
     async def return_answer(self, interaction, text, file = None):
@@ -74,6 +75,7 @@ class ChatAI:
         logger.error("回答完了\n")
         return result, embed, text_file
 
+
     # 入力コンテンツの整形
     async def _form_content(self, text, file = None, prompt = []):
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
@@ -86,6 +88,7 @@ class ChatAI:
             content.append(uploaded_video)
         return content, embed
 
+
     # 動画の処理
     async def _upload_video(self, video):
         video_bytes = await video.read()
@@ -97,6 +100,7 @@ class ChatAI:
         uploaded_video = await self.wait_for_processed()
         return uploaded_video
     
+
     # アップロード完了を待つ関数
     async def wait_for_processed(self):
         uploaded_video = genai.upload_file("temp_video.mp4")
@@ -104,12 +108,14 @@ class ChatAI:
         uploaded_video = genai.get_file(uploaded_video.name)
         return uploaded_video
 
+
     # 履歴をリセット
     def reset_history(self):
         self.chat_ai = self.model.start_chat(history=[])
         result = "記憶をリセットしました。"
         self.loging_info(result)
         return f"{self.name} : {result}"
+
 
     # コンフィグを変更
     def set_config(self, temperature):
@@ -128,6 +134,7 @@ class ChatAI:
         result = f"temperature = {self.temperature}"
         return f"{self.name} : {result}"
     
+
     # プロンプトを追加
     def add_prompt(self, prompt):
         self.prompt.append(prompt)
@@ -135,6 +142,7 @@ class ChatAI:
         self.loging_info(result)
         return f"{self.name} : {result}"
     
+
     # プロンプトを消す
     def delete_prompt(self, index):
         try:
@@ -145,6 +153,7 @@ class ChatAI:
         self.loging_info(result)
         return f"{self.name} : {result}"
 
+
     # プロンプトをリセット
     def reset_prompt(self):
         self.prompt = []
@@ -152,17 +161,20 @@ class ChatAI:
         self.loging_info(result)
         return result
     
+
     # プロンプトを見る
     async def show_prompt(self):
         result = "命令一覧\n" \
                 + "\n".join([f"{x} : {self.prompt[x]}" for x in range(len(self.prompt))])
         return result
     
+
     # ログ出力用
     def loging_info(self, text = ""):
         logger.error(self.name)
         if text != "":
             logger.error(text + "\n")
+
 
     # 要約
     async def get_summary(self, text, order, length):
@@ -179,6 +191,8 @@ class ChatAI:
             logger.error(e)
             result = text + "\n\n" + str(type(e)) + "が発生しました。"
         return result
+
+
 
 # プロセカ用
 class ProsekaAI(ChatAI):
