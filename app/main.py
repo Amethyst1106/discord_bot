@@ -80,7 +80,7 @@ async def chat(interaction: discord.Interaction,
     result, embed, text_file = await chat_ai.return_answer(interaction, text, file)
     files = [file, text_file]
     files = [file for file in files if file is not None and "image" not in file.content_type] #Noneと画像を除く
-    if files is not None:
+    if files != []:
         await interaction.followup.send(result, embed=embed, files=text_file)
     else:
         await interaction.followup.send(result, embed=embed)
