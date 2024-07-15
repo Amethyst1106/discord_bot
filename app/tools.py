@@ -39,7 +39,7 @@ async def to_discord_file(file):
 async def upload_file(file):
     file_bytes = await file.read()
     file_name = "temp_video.mp4" if "video" in file.content_type\
-            else "temp_audio.wav"
+            else "temp_audio.mp3"
     
     # 一時ファイルに保存
     with open(file_name, "wb") as temp_file:
