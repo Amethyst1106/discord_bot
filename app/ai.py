@@ -79,7 +79,7 @@ class ChatAI:
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
         text = prompt_text + text
         
-        files, embed = await get_files_and_embed(image=file)
+        files, embed = await get_files_and_embed(file = file)
         content = [text] + files if file is not None else [text]
         if file is not None and "video" in file.content_type:
             uploaded_video = await self._upload_video(file)
