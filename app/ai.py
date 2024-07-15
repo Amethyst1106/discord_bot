@@ -1,6 +1,6 @@
 ﻿import google.generativeai as genai
 from search import fetch_html
-from tools import form_question, get_files_and_embed, upload_file
+from tools import form_question, get_image_file, upload_file
 from logging import getLogger
 import discord
 
@@ -51,11 +51,10 @@ class ChatAI:
         if self.name != "高速モデル" and (file is not None):
             return "ファイルはflashに渡してください", None
         name = interaction.user.display_name
-        embed = None
         text_file = None
         result = ""
         try:
-            content, embed = await self._form_content(text, file, self.prompt)
+            content = await self._form_content(text, file, self.prompt)
             response = await self.chat_ai.send_message_async(content)
             result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
             # 2000文字超えるとdiscord側のエラーになるのでtextに
@@ -72,20 +71,22 @@ class ChatAI:
             result = form_question(name, text) + str(type(e)) + "が発生しました。"
         logger.error("result : " + str(len(result)) + "文字")
         logger.error("回答完了\n")
-        return result, embed, text_file
+        return result, text_file
 
 
     # 入力コンテンツの整形
     async def _form_content(self, text, file = None, prompt = []):
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
         text = prompt_text + text
-        
-        files, embed = await get_files_and_embed(file = file)
-        content = [text] + files if file is not None else [text]
-        if file is not None and ("video" in file.content_type or "audio" in file.content_type):
-            uploaded_file = await upload_file(file)
-            content.append(uploaded_file)
-        return content, embed
+        content = [text]
+        if file is not None:
+            if "image" in file.content_type:
+                image_file = await get_image_file(file)
+                content.append(image_file)
+            elif "video" in file.content_type or "audio" in file.content_type:
+                uploaded_file = await upload_file(file)
+                content.append(uploaded_file)
+        return content
 
 
     # 履歴をリセット

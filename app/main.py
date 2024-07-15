@@ -38,7 +38,7 @@ nomal_AIs = {}
 super_AIs = {}
 flash_AIs = {}
 AIs_dic = {"flash" : flash_AIs, "super" : super_AIs, "nomal" : nomal_AIs}
-models_choice = [app_commands.Choice(name=model, value=model) for model in AIs_dic.keys()]
+models_choice = [app_commands.Choice(name = model,  value = model)  for model  in AIs_dic.keys()]
 prompt_actions = ["reset", "show", "add", "delete"]
 prompt_choice = [app_commands.Choice(name = action, value = action) for action in prompt_actions]
 config_actions = ["show", "set"]
@@ -77,7 +77,7 @@ async def chat(interaction: discord.Interaction,
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
-    result, embed, text_file = await chat_ai.return_answer(interaction, text, file)
+    result, text_file = await chat_ai.return_answer(interaction, text, file)
     files = []
     if text_file is not None:
         files.append(text_file)
@@ -85,9 +85,9 @@ async def chat(interaction: discord.Interaction,
         files.append(await to_discord_file(file))
 
     if files != []:
-        await interaction.followup.send(result, embed=embed, files=files)
+        await interaction.followup.send(result, files=files)
     else:
-        await interaction.followup.send(result, embed=embed)
+        await interaction.followup.send(result)
 
 #履歴をリセット
 @tree.command(name="reset_history", description="記憶をリセットします")
