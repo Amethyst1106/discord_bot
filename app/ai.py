@@ -44,24 +44,24 @@ class ChatAI:
         self.temperature = None
 
     # 回答
-    async def return_answer(self, interaction, text, image = None, video = None):
+    async def return_answer(self, interaction, text, file = None):
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
-        if self.name != "高速モデル" and (image is not None or video is not None):
-            return "画像はや動画はflashに渡してください", None
+        if self.name != "高速モデル" and (file is not None):
+            return "ファイルはflashに渡してください", None
         name = interaction.user.display_name
         embed = None
         text_file = None
         result = ""
         try:
-            content, embed = await self._form_content(text, image, video, self.prompt)
+            content, embed = await self._form_content(text, file, self.prompt)
             response = await self.chat_ai.send_message_async(content)
             result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
             # 2000文字超えるとdiscord側のエラーになるのでtextに
             if len(result) > 2000:
-                with open("response.txt", "w", encoding="utf-8") as file:
-                    file.write(result[2000:])
+                with open("response.txt", "w", encoding="utf-8") as response_file:
+                    response_file.write(result[2000:])
                 text_file = discord.File("response.txt")
                 result = result[:2000]
 
@@ -75,13 +75,14 @@ class ChatAI:
         return result, embed, text_file
 
     # 入力コンテンツの整形
-    async def _form_content(self, text, image = None, video = None, prompt = []):
+    async def _form_content(self, text, file = None, prompt = []):
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
         text = prompt_text + text
-        files, embed = await get_files_and_embed(image=image)
-        content = [text] + files if image is not None else [text]
-        if video is not None:
-            uploaded_video = await self._upload_video(video)
+        
+        files, embed = await get_files_and_embed(image=file)
+        content = [text] + files if file is not None else [text]
+        if file is not None and "video" in file.content_type:
+            uploaded_video = await self._upload_video(file)
             content.append(uploaded_video)
         return content, embed
 

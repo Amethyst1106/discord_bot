@@ -8,14 +8,13 @@ def form_question(name, text):
     return "from : " + name + "\n" + text + "\n\n"
 
 #画像のファイルとembedを取得
-async def get_files_and_embed(image = None):
+async def get_files_and_embed(file = None):
     embed = None
     files = []
-    if not(image is None):
+    if file is not None and "image" in file.content_type :
         embed = discord.Embed(title="送信ファイル", color=0xff0000)
-    if image is not None:
-        embed.set_image(url=image.url)
-        image_file = await get_image_file(image)
+        embed.set_image(url=file.url)
+        image_file = await get_image_file(file)
         files.append(image_file)
     return files, embed
 
