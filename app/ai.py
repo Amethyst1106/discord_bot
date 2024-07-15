@@ -1,7 +1,6 @@
-﻿import asyncio
-import google.generativeai as genai
+﻿import google.generativeai as genai
 from search import fetch_html
-from tools import form_question, get_files_and_embed
+from tools import form_question, get_files_and_embed, upload_file
 from logging import getLogger
 import discord
 
@@ -83,30 +82,10 @@ class ChatAI:
         
         files, embed = await get_files_and_embed(file = file)
         content = [text] + files if file is not None else [text]
-        if file is not None and "video" in file.content_type:
-            uploaded_video = await self._upload_video(file)
-            content.append(uploaded_video)
+        if file is not None and ("video" in file.content_type or "audio" in file.content_type):
+            uploaded_file = await upload_file(file)
+            content.append(uploaded_file)
         return content, embed
-
-
-    # 動画の処理
-    async def _upload_video(self, video):
-        video_bytes = await video.read()
-        # 動画を一時ファイルに保存
-        with open("temp_video.mp4", "wb") as temp_file:
-            temp_file.write(video_bytes)
-        
-        # アップロード
-        uploaded_video = await self.wait_for_processed()
-        return uploaded_video
-    
-
-    # アップロード完了を待つ関数
-    async def wait_for_processed(self):
-        uploaded_video = genai.upload_file("temp_video.mp4")
-        await asyncio.sleep(4)
-        uploaded_video = genai.get_file(uploaded_video.name)
-        return uploaded_video
 
 
     # 履歴をリセット
