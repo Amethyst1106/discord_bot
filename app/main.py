@@ -198,8 +198,9 @@ async def proseka(interaction: discord.Interaction, music_name: str, reset: str 
     await proseka_AI.reset_history()
     
 @tree.command(name = "stop", description="管理用コマンド")
-async def stop(password: str):
+async def stop(interaction: discord.Interaction, password: str):
     if password == os.environ["STOP_PASSWORD"]:
+        await interaction.response.send_message("botを停止します。")
         client.close()
         sys.exit()
 
