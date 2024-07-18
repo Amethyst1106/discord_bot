@@ -84,8 +84,6 @@ class ChatAI:
             if "text" in file.content_type or "json" in file.content_type:
                 file_content = await file.read()
                 file_text    = file_content.decode('utf-8')
-                if "json" in file.content_type:
-                    file_text = json.loads(file_text)
                 content.append(file_text)
             elif "image" in file.content_type:
                 image_file = await get_image_file(file)
