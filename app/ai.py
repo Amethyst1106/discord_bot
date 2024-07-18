@@ -1,4 +1,5 @@
-﻿import google.generativeai as genai
+﻿import json
+import google.generativeai as genai
 from search import fetch_html
 from tools import form_question, get_image_file, upload_file
 from logging import getLogger
@@ -80,16 +81,19 @@ class ChatAI:
         formed_text = prompt_text + text
         content = [formed_text]
         if file is not None:
-            if "image" in file.content_type:
+            if "text" in file.content_type or "json" in file.content_type:
+                file_content = await file.read()
+                file_text    = file_content.decode('utf-8')
+                if "json" in file.content_type:
+                    file_text = json.loads(file_text)
+                content.append(file_text)
+            elif "image" in file.content_type:
                 image_file = await get_image_file(file)
                 content.append(image_file)
             elif "video" in file.content_type or "audio" in file.content_type:
                 uploaded_file = await upload_file(file)
                 content.append(uploaded_file)
-            elif "text" in file.content_type:
-                file_content = await file.read()
-                file_text = file_content.decode('utf-8')
-                content[0] += file_text
+            
         return content, formed_text
 
 
