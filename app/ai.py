@@ -54,9 +54,9 @@ class ChatAI:
         text_file = None
         result = ""
         try:
-            content = await self._form_content(text, file, self.prompt)
+            content, formed_text = await self._form_content(text, file, self.prompt)
             response = await self.chat_ai.send_message_async(content)
-            result = form_question(name, content[0]) + f"【回答({self.name})】\n" + response.text
+            result = form_question(name, text) + f"【回答({self.name})】\n" + response.text
             # 2000文字超えるとdiscord側のエラーになるのでtextに
             if len(result) > 2000:
                 with open("response.txt", "w", encoding="utf-8") as response_file:
@@ -77,8 +77,8 @@ class ChatAI:
     # 入力コンテンツの整形
     async def _form_content(self, text, file = None, prompt = []):
         prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
-        text = prompt_text + text
-        content = [text]
+        formed_text = prompt_text + text
+        content = [formed_text]
         if file is not None:
             if "image" in file.content_type:
                 image_file = await get_image_file(file)
@@ -86,7 +86,11 @@ class ChatAI:
             elif "video" in file.content_type or "audio" in file.content_type:
                 uploaded_file = await upload_file(file)
                 content.append(uploaded_file)
-        return content
+            elif "text" in file.content_type:
+                file_content = await file.read()
+                file_text = file_content.decode('utf-8')
+                content[0] += file_text
+        return content, formed_text
 
 
     # 履歴をリセット
