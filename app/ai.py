@@ -49,8 +49,8 @@ class ChatAI:
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
-        if self.name != "高速モデル" and (file is not None):
-            return "ファイルはflashに渡してください", None
+        if self.name == "通常モデル" and (file is not None):
+            return "旧モデルでファイルは扱えません", None
         name = interaction.user.display_name
         text_file = None
         result = ""
