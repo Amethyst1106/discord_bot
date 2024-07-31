@@ -77,7 +77,7 @@ class ChatAI:
 
     # 入力コンテンツの整形
     async def _form_content(self, text, file = None, prompt = []):
-        prompt_text = "。\n".join(prompt) + "。" if prompt != [] else ""
+        prompt_text = "。\n".join(prompt) + "。\n" if prompt != [] else ""
         formed_text = prompt_text + text
         content = [formed_text]
         if file is not None:
