@@ -57,7 +57,7 @@ class ChatAI:
         try:
             content, formed_text = await self._form_content(text, file, self.prompt)
             response = await self.chat_ai.send_message_async(content)
-            result = form_question(name, text) + f"【回答({self.name})】\n" + response.text
+            result = form_question(name, formed_text) + f"【回答({self.name})】\n" + response.text
             # 2000文字超えるとdiscord側のエラーになるのでtextに
             if len(result) > 2000:
                 with open("response.txt", "w", encoding="utf-8") as response_file:
