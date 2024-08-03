@@ -118,7 +118,7 @@ class ChatAI:
     # コンフィグを見る
     async def show_config(self):
         result = f"temperature = {self.temperature}"
-        result = f"model_name = {self.chat_ai.model.model_name}"
+        result += f"\nmodel_name = {self.chat_ai.model.model_name}"
         return f"{self.name} : {result}"
     
 
