@@ -32,7 +32,7 @@ default_config = genai.GenerationConfig(temperature=0.7)
 
 # Geminiモデルの設定
 nomal_model_name = "gemini-1.0-pro-latest"
-super_model_name = "gemini-1.5-pro-latest"
+super_model_name = "gemini-1.5-pro-exp-0801"
 flash_model_name = "gemini-1.5-flash-latest"
 
 nomal_AIs = {}
