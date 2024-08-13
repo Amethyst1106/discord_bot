@@ -22,9 +22,9 @@ def insert(table, dic):
     sql = f'\
             INSERT INTO \
                 {table} \
-            {", ".join(columns)} \
+            ({", ".join(columns)}) \
             VALUES \
-            {",".join(["%s"]*len(columns))}\
+            ({",".join(["%s"]*len(columns))})\
             '
     con = psycopg2.connect(db_url)
     cur = con.cursor()
