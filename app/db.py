@@ -20,10 +20,10 @@ def insert(table, dic):
         columns.append(key)
         values.append(dic[key])
     sql = f'\
-            INSERT INTO\
-                {table}\
-            {", ".join(columns)}\
-            VALUES\
+            INSERT INTO \
+                {table} \
+            {", ".join(columns)} \
+            VALUES \
             {",".join(["%s"]*len(columns))}\
             '
     con = psycopg2.connect(db_url)
