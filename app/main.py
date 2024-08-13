@@ -1,4 +1,4 @@
-﻿from datetime import datetime, timezone
+﻿from datetime import datetime, timezone, timedelta
 import os
 import sys
 import google.generativeai as genai
@@ -60,8 +60,8 @@ tree = app_commands.CommandTree(client)
 sql = "SELECT * FROM SCHEDULE"
 schedule_datas = db.select(sql)
 schedules = {data["timestamp"].strftime('%Y-%H-%M'):data for data in schedule_datas}
-td = datetime.timedelta(hours=9)
-tz = datetime.timezone(td)
+td = timedelta(hours=9)
+tz = timezone(td)
 
 @client.event
 async def on_ready():
