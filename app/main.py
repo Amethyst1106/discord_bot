@@ -1,13 +1,16 @@
-﻿import os
+﻿from datetime import datetime, timezone
+import os
 import sys
-import discord
 import google.generativeai as genai
+import discord
 from discord import app_commands
+from discord.ext import tasks
 
 import ai, search
 from tools import form_question, to_discord_file
 from server import server_thread
 from search import fetch_html
+import db
 
 from logging import getLogger
 logger = getLogger(__name__)
@@ -44,12 +47,19 @@ prompt_actions = ["reset", "show", "add", "delete"]
 prompt_choice = [app_commands.Choice(name = action, value = action) for action in prompt_actions]
 config_actions = ["show", "set"]
 config_choice = [app_commands.Choice(name = action, value = action) for action in config_actions]
+schedule_actions = ["add", "show", "delete"]
+schedule_choice = [app_commands.Choice(name = action, value = action) for action in schedule_actions]
 proseka_AI = ai.ProsekaAI()
 
 # botの設定
 intents = discord.Intents.none()  #スラッシュコマンド以外受け取らない
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
+
+# タイマーの設定
+sql = "SELECT * FROM SCHEDULE"
+schedule_datas = db.select(sql)
+schedules = {data["timestamp"].strftime('%Y-%H-%M'):data for data in schedule_datas}
 
 @client.event
 async def on_ready():
@@ -59,12 +69,23 @@ async def on_ready():
         nomal_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=nomal_model_name, name = "通常モデル")
         super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル")
         flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル")
+    loop.start()
     logger.error('{0.user} がログインしたよ'.format(client))
 
 @client.event
 #接続が切れたとき
 async def on_disconnect():
     logger.error("接続が切断されました")
+
+# 60秒に一回ループ
+@tasks.loop(seconds=60)
+async def loop():
+    now = datetime.now(timezone("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M")
+    if now in schedules:
+        schedule = schedules[now]
+        channel  = client.get_channel(schedule["channel_id"])
+        send_text = f"スケジュール機能\n<@{schedule["mention"]}>\n{now}\n{schedule["event"]}"
+        await channel.send(send_text)  
 
 
 #------------------------------スラッシュコマンド------------------------------------
@@ -181,6 +202,7 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
     await interaction.followup.send(result)
     
 
+# プロセカ
 @tree.command(name="proseka", description="プロセカ曲の難易度を返します")
 @app_commands.choices(reset = [app_commands.Choice(name = "reset", value = "reset")])
 async def proseka(interaction: discord.Interaction, music_name: str, reset: str = ""):
@@ -196,7 +218,44 @@ async def proseka(interaction: discord.Interaction, music_name: str, reset: str 
             
     await interaction.followup.send(result)
     await proseka_AI.reset_history()
-    
+
+# スケジュール
+@tree.command(name="schedule", description="スケジュールのコマンド")
+@app_commands.describe(date="YYYY-MM-DD", time="HH:MM")
+@app_commands.choices(action = schedule_choice)
+async def schedule(interaction: discord.Interaction,
+                        action:str, date: str = "", time: str = "", event: str = "", mention: str = ""):
+    await interaction.response.defer()
+
+    if action == "add":
+        if not("" in (date, time, event)):
+            mention = str(interaction.user.id) if mention == "" else mention
+            timestamp = date + " " + time
+            schedule = {
+            "timestamp"  : timestamp,
+            "event"      : event,
+            "channel_id" : interaction.channel_id,
+            "mention"    : mention
+            }
+            schedules[timestamp] = schedule
+            db.insert("SCHEDULE", schedule)
+            result = f"{timestamp}\n{event}\nスケジュールを登録しました",
+        else:
+            result = "必要事項を入力してください。"
+
+    elif action == "show":
+        guild_schedules = []
+        for schedule in schedules:
+            if interaction.guild_id == schedule["guild_id"]:
+                guild_schedules.append(schedule["timestamp"] + "\n" + event)
+        result = "\n\n".join(guild_schedules)
+
+    elif action == "delete":
+        result = "未実装"
+
+    await interaction.followup.send(result)
+
+# stop
 @tree.command(name = "stop", description="管理用コマンド")
 async def stop(interaction: discord.Interaction, password: str):
     if password == os.environ["STOP_PASSWORD"]:
