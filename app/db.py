@@ -5,12 +5,11 @@ from psycopg2.extras import DictCursor
 db_url = os.getenv("DB_URL")
 
 def select(sql):
-    con = psycopg2.connect(db_url)
-    cur = con.cursor(cursor_factory=DictCursor)
-    cur.execute(sql)
-    data = cur.fetchall()
-    cur.close()
-    con.close()
+    data = []
+    with psycopg2.connect(db_url) as con:
+        with con.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(sql)
+            data = cur.fetchall()
     return data
 
 def insert(table, dic):
@@ -26,9 +25,7 @@ def insert(table, dic):
             VALUES \
             ({",".join(["%s"]*len(columns))})\
             '
-    con = psycopg2.connect(db_url)
-    cur = con.cursor()
-    cur.execute(sql, tuple(values))
-    con.commit()
-    cur.close()
-    con.close()
+    with psycopg2.connect(db_url) as con:
+        with con.cursor() as cur:
+            cur.execute(sql, tuple(values))
+            con.commit()
