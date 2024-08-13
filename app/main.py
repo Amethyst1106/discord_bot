@@ -60,6 +60,8 @@ tree = app_commands.CommandTree(client)
 sql = "SELECT * FROM SCHEDULE"
 schedule_datas = db.select(sql)
 schedules = {data["timestamp"].strftime('%Y-%H-%M'):data for data in schedule_datas}
+td = datetime.timedelta(hours=9)
+tz = datetime.timezone(td)
 
 @client.event
 async def on_ready():
@@ -80,7 +82,7 @@ async def on_disconnect():
 # 60秒に一回ループ
 @tasks.loop(seconds=60)
 async def loop():
-    now = datetime.now(timezone("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M")
+    now = datetime.now(tz).strftime("%Y-%m-%d %H:%M")
     if now in schedules:
         schedule = schedules[now]
         channel  = client.get_channel(schedule["channel_id"])
