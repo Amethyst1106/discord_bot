@@ -19,13 +19,13 @@ def insert(table, dic):
     for key in dic:
         columns.append(key)
         values.append(dic[key])
-    sql = f"\
+    sql = f'\
             INSERT INTO\
                 {table}\
             {", ".join(columns)}\
             VALUES\
             {",".join(["%s"]*len(columns))}\
-            "
+            '
     con = psycopg2.connect(db_url)
     cur = con.cursor()
     cur.execute(sql, tuple(values))
