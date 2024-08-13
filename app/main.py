@@ -84,7 +84,7 @@ async def loop():
     if now in schedules:
         schedule = schedules[now]
         channel  = client.get_channel(schedule["channel_id"])
-        send_text = f"スケジュール機能\n<@{schedule["mention"]}>\n{now}\n{schedule["event"]}"
+        send_text = f'スケジュール機能\n<@{schedule["mention"]}>\n{now}\n{schedule["event"]}'
         await channel.send(send_text)  
 
 
