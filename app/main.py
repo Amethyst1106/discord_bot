@@ -85,7 +85,7 @@ async def loop():
     now = datetime.now(tz).strftime("%Y-%m-%d %H:%M")
     if now in schedules:
         schedule = schedules[now]
-        channel  = client.get_channel(schedule["channel_id"])
+        channel  = client.get_channel(int(schedule["channel_id"]))
         send_text = f'スケジュール機能\n<@{schedule["mention"]}>\n{now}\n{schedule["event"]}'
         await channel.send(send_text)  
 
@@ -236,7 +236,7 @@ async def schedule(interaction: discord.Interaction,
             schedule = {
             "timestamp"  : timestamp,
             "event"      : event,
-            "channel_id" : interaction.channel_id,
+            "channel_id" : str(interaction.channel_id),
             "mention"    : mention
             }
             schedules[timestamp] = schedule
