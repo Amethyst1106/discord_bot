@@ -85,7 +85,7 @@ async def loop():
     now = datetime.now(tz).strftime("%Y-%m-%d %H:%M")
     if now in schedules:
         schedule = schedules[now]
-        channel  = client.get_channel(int(schedule["channel_id"]))
+        channel  = client.fetch_channel(int(schedule["channel_id"]))
         send_text = f'スケジュール機能\n<@{schedule["mention"]}>\n{now}\n{schedule["event"]}'
         await channel.send(send_text)  
 
@@ -241,7 +241,7 @@ async def schedule(interaction: discord.Interaction,
             }
             schedules[timestamp] = schedule
             db.insert("SCHEDULE", schedule)
-            result = f"{timestamp}\n{event}\nスケジュールを登録しました",
+            result = f"{timestamp}\n{event}\nスケジュールを登録しました"
         else:
             result = "必要事項を入力してください。"
 
