@@ -248,9 +248,9 @@ async def schedule(interaction: discord.Interaction,
 
     elif action == "show":
         guild_schedules = []
-        for schedule in schedules:
-            if str(interaction.guild_id) == schedule["guild_id"]:
-                guild_schedules.append(schedule["timestamp"] + "\n" + event)
+        for timestamp in schedules:
+            if str(interaction.guild_id) == schedules[timestamp]["guild_id"]:
+                guild_schedules.append(timestamp + "\n" + schedules[timestamp]["event"])
         result = "\n\n".join(guild_schedules)
 
     elif action == "delete":
