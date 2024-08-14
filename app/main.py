@@ -249,7 +249,7 @@ async def schedule(interaction: discord.Interaction,
     elif action == "show":
         guild_schedules = []
         for schedule in schedules:
-            if interaction.guild_id == schedule["guild_id"]:
+            if str(interaction.guild_id) == schedule["guild_id"]:
                 guild_schedules.append(schedule["timestamp"] + "\n" + event)
         result = "\n\n".join(guild_schedules)
 
