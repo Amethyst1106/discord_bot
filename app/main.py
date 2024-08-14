@@ -86,7 +86,7 @@ async def loop():
     if now in schedules:
         schedule = schedules[now]
         channel  = await client.fetch_channel(int(schedule["channel_id"]))
-        send_text = f'【スケジュール機能】\n<@{schedule["mention"]}>\n{now}\n{schedule["event"]}'
+        send_text = f'【スケジュール機能】\n{schedule["mention"]}\n{now}\n{schedule["event"]}'
         await channel.send(send_text)  
 
 
@@ -223,7 +223,7 @@ async def proseka(interaction: discord.Interaction, music_name: str, reset: str 
 
 # スケジュール
 @tree.command(name="schedule", description="スケジュールのコマンド")
-@app_commands.describe(date="YYYY-MM-DD", time="HH:MM")
+@app_commands.describe(date="YYYY-MM-DD", time="HH:MM", event="内容", mention = "デフォルト:送信者")
 @app_commands.choices(action = schedule_choice)
 async def schedule(interaction: discord.Interaction,
                         action:str, date: str = "", time: str = "", event: str = "", mention: str = ""):
@@ -231,7 +231,7 @@ async def schedule(interaction: discord.Interaction,
 
     if action == "add":
         if not("" in (date, time, event)):
-            mention = str(interaction.user.id) if mention == "" else mention
+            mention = f"<@{str(interaction.user.id)}>" if mention == "" else mention
             timestamp = date + " " + time
             schedule = {
             "timestamp"  : timestamp,
