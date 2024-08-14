@@ -59,7 +59,7 @@ tree = app_commands.CommandTree(client)
 # タイマーの設定
 sql = "SELECT * FROM SCHEDULE"
 schedule_datas = db.select(sql)
-schedules = {data["timestamp"].strftime('%Y-%H-%M'):data for data in schedule_datas}
+schedules = {data["timestamp"]:data for data in schedule_datas}
 td = timedelta(hours=9)
 tz = timezone(td)
 
