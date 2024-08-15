@@ -4,15 +4,16 @@ from psycopg2.extras import DictCursor
 
 db_url = os.getenv("DB_URL")
 
-def select(sql):
+def select_all(table):
     data = []
     with psycopg2.connect(db_url) as con:
         with con.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(sql)
+            sql = "SELECT * FROM %s"
+            cur.execute(sql, tuple(table))
             data = cur.fetchall()
     return data
 
-def insert(table, dic):
+def insert_dic(table, dic):
     columns = list()
     values = list()
     for key in dic:
@@ -28,4 +29,11 @@ def insert(table, dic):
     with psycopg2.connect(db_url) as con:
         with con.cursor() as cur:
             cur.execute(sql, tuple(values))
+            con.commit()
+
+def delete_by_rule(table, rule):
+    with psycopg2.connect(db_url) as con:
+        with con.cursor() as cur:
+            sql = f"DELETE FROM {table} WHERE {rule}"
+            cur.execute(sql)
             con.commit()

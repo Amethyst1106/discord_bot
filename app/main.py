@@ -57,11 +57,14 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 # タイマーの設定
-sql = "SELECT * FROM SCHEDULE"
-schedule_datas = db.select(sql)
-schedules = {data["timestamp"]:data for data in schedule_datas}
 td = timedelta(hours=9)
 tz = timezone(td)
+table = "Schedule"
+delete_rule = f"time_stamp < \'{datetime.now(tz).strftime('%Y-%m-%d %H:%M')}\'"
+db.delete_by_rule(table, delete_rule)
+schedule_datas = db.select(table)
+schedules = {data["time_stamp"]:data for data in schedule_datas}
+schedules.sort()
 
 @client.event
 async def on_ready():
@@ -82,7 +85,8 @@ async def on_disconnect():
 # 60秒に一回ループ
 @tasks.loop(seconds=60)
 async def loop():
-    now = datetime.now(tz).strftime("%Y-%m-%d %H:%M")
+    now_str = datetime.now(tz).strftime("%Y-%m-%d %H:%M")
+    now     = datetime.strptime(now_str, "%Y-%m-%d %H:%M")
     if now in schedules:
         schedule = schedules[now]
         channel  = await client.fetch_channel(int(schedule["channel_id"]))
@@ -223,34 +227,36 @@ async def proseka(interaction: discord.Interaction, music_name: str, reset: str 
 
 # スケジュール
 @tree.command(name="schedule", description="スケジュールのコマンド")
-@app_commands.describe(date="YYYY-MM-DD", time="HH:MM", event="内容", mention = "デフォルト:送信者")
+@app_commands.describe(date="YYYY-MM-DD (デフォルト:今日)", time="HH:MM", event="内容", mention = "デフォルト:送信者")
 @app_commands.choices(action = schedule_choice)
 async def schedule(interaction: discord.Interaction,
-                        action:str, date: str = "", time: str = "", event: str = "", mention: str = ""):
+                        action:str, date: str = datetime.now(tz).strftime("%Y-%m-%d"),
+                        time: str = "", event: str = "", mention: str = ""):
     await interaction.response.defer()
 
     if action == "add":
         if not("" in (date, time, event)):
             mention = f"<@{str(interaction.user.id)}>" if mention == "" else mention
-            timestamp = date + " " + time
+            time_stamp_str = date + " " + time
+            time_stamp     = datetime.strptime(time_stamp_str, "%Y-%m-%d %H:%M")
             schedule = {
-            "timestamp"  : timestamp,
+            "time_stamp"  : time_stamp,
             "event"      : event,
             "guild_id"   : str(interaction.guild_id),
             "channel_id" : str(interaction.channel_id),
             "mention"    : mention
             }
-            schedules[timestamp] = schedule
+            schedules[time_stamp] = schedule
             db.insert("SCHEDULE", schedule)
-            result = f"{timestamp}\n{event}\nスケジュールを登録しました"
+            result = f"{time_stamp_str}\n{event}\nスケジュールを登録しました"
         else:
             result = "必要事項を入力してください。"
 
     elif action == "show":
         guild_schedules = []
-        for timestamp in schedules:
-            if str(interaction.guild_id) == schedules[timestamp]["guild_id"]:
-                guild_schedules.append(timestamp + "\n" + schedules[timestamp]["event"])
+        for time_stamp in schedules:
+            if str(interaction.guild_id) == schedules[time_stamp]["guild_id"]:
+                guild_schedules.append(time_stamp.strftime("%Y-%m-%d") + "\n" + schedules[time_stamp]["event"])
         result = "\n\n".join(guild_schedules) if guild_schedules != [] else "スケジュールがありません"
 
     elif action == "delete":
