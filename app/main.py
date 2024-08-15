@@ -64,7 +64,6 @@ delete_rule = f"time_stamp < \'{datetime.now(tz).strftime('%Y-%m-%d %H:%M')}\'"
 db.delete_by_rule(table, delete_rule)
 schedule_datas = db.select_all(table)
 schedules = {data["time_stamp"]:data for data in schedule_datas}
-schedules.sort()
 
 @client.event
 async def on_ready():
@@ -254,7 +253,7 @@ async def schedule(interaction: discord.Interaction,
 
     elif action == "show":
         guild_schedules = []
-        for time_stamp in schedules:
+        for time_stamp in sorted(schedules.keys()):
             if str(interaction.guild_id) == schedules[time_stamp]["guild_id"]:
                 guild_schedules.append(time_stamp.strftime("%Y-%m-%d") + "\n" + schedules[time_stamp]["event"])
         result = "\n\n".join(guild_schedules) if guild_schedules != [] else "スケジュールがありません"
