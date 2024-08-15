@@ -93,6 +93,7 @@ async def loop():
         await channel.send(send_text)
         delete_rule    = f"time_stamp = \'{now}\'"
         db.delete_by_rule("Schedule", delete_rule)
+        schedules.pop(now)
 
 
 #------------------------------スラッシュコマンド------------------------------------
@@ -249,17 +250,19 @@ async def schedule(interaction: discord.Interaction,
             }
             schedules[time_stamp] = schedule
             db.insert_dic("SCHEDULE", schedule)
-            result = f"【スケジュール登録】\n{time_stamp_str}\n{event}"
+            result = f"{time_stamp_str}\n{event}"
         else:
             result = "必要事項を入力してください。"
+        result = "【スケジュール登録】\n" + result
 
     elif action == "show":
         guild_schedules = []
         for time_stamp in sorted(schedules.keys()):
             if str(interaction.guild_id) == schedules[time_stamp]["guild_id"]:
                 guild_schedules.append(time_stamp.strftime("%Y-%m-%d %H:%M") + "\n" + schedules[time_stamp]["event"])
-        result = "【スケジュール一覧】\n" + "\n\n".join(guild_schedules) if guild_schedules != [] else "【スケジュール一覧】\nスケジュールがありません"
-
+        result = "\n\n".join(guild_schedules) if guild_schedules != [] else "スケジュールがありません"
+        result = "【スケジュール一覧】\n" + result
+        
     elif action == "delete":
         try:
             if not("" in (date, time)):
@@ -267,12 +270,13 @@ async def schedule(interaction: discord.Interaction,
                 time_stamp     = datetime.strptime(time_stamp_str, "%Y-%m-%d %H:%M")
                 delete_rule    = f"time_stamp = \'{time_stamp}\'"
                 db.delete_by_rule("Schedule", delete_rule)
-                result = "削除完了。"
+                result = f"{time_stamp_str}\n{schedules[time_stamp]['event']}"
+                schedules.pop(time_stamp)
             else:
                 result = "日付を入力してください。"
         except Exception as e:
             result = e + "が発生しました。"
-
+        result = "【スケジュール削除】\n" + result
     await interaction.followup.send(result)
 
 # stop
