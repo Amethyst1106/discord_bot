@@ -62,7 +62,7 @@ tz = timezone(td)
 table = "Schedule"
 delete_rule = f"time_stamp < \'{datetime.now(tz).strftime('%Y-%m-%d %H:%M')}\'"
 db.delete_by_rule(table, delete_rule)
-schedule_datas = db.select(table)
+schedule_datas = db.select_all(table)
 schedules = {data["time_stamp"]:data for data in schedule_datas}
 schedules.sort()
 
@@ -247,7 +247,7 @@ async def schedule(interaction: discord.Interaction,
             "mention"    : mention
             }
             schedules[time_stamp] = schedule
-            db.insert("SCHEDULE", schedule)
+            db.insert_dic("SCHEDULE", schedule)
             result = f"{time_stamp_str}\n{event}\nスケジュールを登録しました"
         else:
             result = "必要事項を入力してください。"
