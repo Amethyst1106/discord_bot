@@ -90,8 +90,10 @@ async def loop():
         schedule = schedules[now]
         channel  = await client.fetch_channel(int(schedule["channel_id"]))
         send_text = f'【スケジュール機能】\n{schedule["mention"]}\n{now}\n{schedule["event"]}'
-        await channel.send(send_text)  
-
+        await channel.send(send_text)
+        delete_rule    = f"time_stamp = {now}"
+        db.delete_by_rule("Schedule", delete_rule)
+        
 
 #------------------------------スラッシュコマンド------------------------------------
 #回答
@@ -256,11 +258,21 @@ async def schedule(interaction: discord.Interaction,
         for time_stamp in sorted(schedules.keys()):
             if str(interaction.guild_id) == schedules[time_stamp]["guild_id"]:
                 guild_schedules.append(time_stamp.strftime("%Y-%m-%d") + "\n" + schedules[time_stamp]["event"])
-        result = "\n\n".join(guild_schedules) if guild_schedules != [] else "スケジュールがありません"
+        result = "【スケジュール一覧】\n" + "\n\n".join(guild_schedules) if guild_schedules != [] else "スケジュールがありません"
 
     elif action == "delete":
-        result = "未実装"
-    
+        try:
+            if not("" in (date, time)):
+                time_stamp_str = date + " " + time
+                time_stamp     = datetime.strptime(time_stamp_str, "%Y-%m-%d %H:%M")
+                delete_rule    = f"time_stamp = {time_stamp}"
+                db.delete_by_rule("Schedule", delete_rule)
+                result = "削除完了。"
+            else:
+                result = "日付を入力してください。"
+        except Exception as e:
+            result = e + "が発生しました。"
+
     await interaction.followup.send(result)
 
 # stop
