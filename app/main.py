@@ -251,11 +251,11 @@ async def schedule(interaction: discord.Interaction,
         for timestamp in schedules:
             if str(interaction.guild_id) == schedules[timestamp]["guild_id"]:
                 guild_schedules.append(timestamp + "\n" + schedules[timestamp]["event"])
-        result = "\n\n".join(guild_schedules)
+        result = "\n\n".join(guild_schedules) if guild_schedules != [] else "スケジュールがありません"
 
     elif action == "delete":
         result = "未実装"
-
+    
     await interaction.followup.send(result)
 
 # stop
