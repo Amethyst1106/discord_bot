@@ -93,7 +93,7 @@ async def loop():
         await channel.send(send_text)
         delete_rule    = f"time_stamp = {now}"
         db.delete_by_rule("Schedule", delete_rule)
-        
+
 
 #------------------------------スラッシュコマンド------------------------------------
 #回答
@@ -257,7 +257,7 @@ async def schedule(interaction: discord.Interaction,
         guild_schedules = []
         for time_stamp in sorted(schedules.keys()):
             if str(interaction.guild_id) == schedules[time_stamp]["guild_id"]:
-                guild_schedules.append(time_stamp.strftime("%Y-%m-%d") + "\n" + schedules[time_stamp]["event"])
+                guild_schedules.append(time_stamp.strftime("%Y-%m-%d %H:%M") + "\n" + schedules[time_stamp]["event"])
         result = "【スケジュール一覧】\n" + "\n\n".join(guild_schedules) if guild_schedules != [] else "スケジュールがありません"
 
     elif action == "delete":
