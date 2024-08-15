@@ -8,8 +8,8 @@ def select_all(table):
     data = []
     with psycopg2.connect(db_url) as con:
         with con.cursor(cursor_factory=DictCursor) as cur:
-            sql = "SELECT * FROM %s"
-            cur.execute(sql, tuple(table))
+            sql = f"SELECT * FROM {table}"
+            cur.execute(sql)
             data = cur.fetchall()
     return data
 
