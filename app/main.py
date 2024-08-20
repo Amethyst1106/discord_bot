@@ -6,11 +6,10 @@ import discord
 from discord import app_commands
 from discord.ext import tasks
 
-import ai, search
+import ai, search, db
 from tools import form_question, to_discord_file
 from server import server_thread
 from search import fetch_html
-import db
 
 from logging import getLogger
 logger = getLogger(__name__)
