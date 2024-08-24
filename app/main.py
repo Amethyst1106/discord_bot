@@ -58,22 +58,27 @@ tree = app_commands.CommandTree(client)
 # タイマーの設定
 td = timedelta(hours=9)
 tz = timezone(td)
-table = "Schedule"
+schedule_table_name = "Schedule"
 delete_rule = f"time_stamp < \'{datetime.now(tz).strftime('%Y-%m-%d %H:%M')}\'"
-db.delete_by_rule(table, delete_rule)
-schedule_datas = db.select_all(table)
+db.delete_by_rule(schedule_table_name, delete_rule)
+schedule_datas = db.select_all(schedule_table_name)
 schedules = {data["time_stamp"]:data for data in schedule_datas}
+add_schedules = []
+
+is_ready = False
 
 @client.event
 async def on_ready():
-    await tree.sync()
-    global nomal_AIs, super_AIs, flash_AIs
-    for guild in client.guilds:
-        nomal_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=nomal_model_name, name = "通常モデル")
-        super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル")
-        flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル")
-    loop.start()
-    logger.error('{0.user} がログインしたよ'.format(client))
+    if not is_ready:
+        await tree.sync()
+        global nomal_AIs, super_AIs, flash_AIs
+        for guild in client.guilds:
+            nomal_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=nomal_model_name, name = "通常モデル")
+            super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル")
+            flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル")
+        loop.start()
+        logger.error('{0.user} がログインしたよ'.format(client))
+        is_ready = True
 
 @client.event
 #接続が切れたとき
@@ -90,8 +95,6 @@ async def loop():
         channel  = await client.fetch_channel(int(schedule["channel_id"]))
         send_text = f'【スケジュール機能】\n{schedule["mention"]}\n{now_str}\n{schedule["event"]}'
         await channel.send(send_text)
-        delete_rule    = f"time_stamp = \'{now}\'"
-        db.delete_by_rule("Schedule", delete_rule)
         schedules.pop(now)
 
 
@@ -249,7 +252,7 @@ async def schedule(interaction: discord.Interaction,
             "mention"    : mention
             }
             schedules[time_stamp] = schedule
-            db.insert_dic("SCHEDULE", schedule)
+            add_schedules.append(schedule)
             result = f"{time_stamp_str}\n{event}"
         else:
             result = "必要事項を入力してください。"
@@ -297,6 +300,7 @@ try:
     if bot_token == "":
         raise Exception("DiscordBotのトークンがないよ")
     client.run(bot_token)
+
 except discord.HTTPException as e:
     if e.status == 429:
         logger.error("レート上限だよ")
@@ -309,3 +313,7 @@ except discord.errors.ConnectionClosed as e:
         logger.error("再接続中・・・")
     else:
         raise e
+    
+finally:
+    for schedule in add_schedules:
+        db.insert_dic(schedule_table_name, schedule)
