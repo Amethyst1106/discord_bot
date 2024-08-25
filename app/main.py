@@ -69,6 +69,7 @@ is_ready = False
 
 @client.event
 async def on_ready():
+    global is_ready
     if not is_ready:
         await tree.sync()
         global nomal_AIs, super_AIs, flash_AIs
