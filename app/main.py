@@ -1,17 +1,19 @@
-﻿from datetime import datetime, timezone, timedelta
-import os
+﻿import os
 import sys
-import google.generativeai as genai
+from datetime import datetime, timedelta, timezone
+from logging import getLogger
+
+import ai
+import db
 import discord
+import google.generativeai as genai
+import search
 from discord import app_commands
 from discord.ext import tasks
-
-import ai, search, db
-from tools import form_question, to_discord_file
-from server import server_thread
 from search import fetch_html
+from server import server_thread
+from tools import form_question, to_discord_file
 
-from logging import getLogger
 logger = getLogger(__name__)
 
 # Gemini APIの設定
@@ -35,7 +37,7 @@ default_config = genai.GenerationConfig(temperature=0.7)
 # Geminiモデルの設定
 nomal_model_name = "gemini-1.0-pro-latest"
 super_model_name = "gemini-1.5-pro-exp-0827"
-flash_model_name = "gemini-1.5-flash-exp-0827"
+flash_model_name = "gemini-1.5-flash-8b-exp-0924"
 
 nomal_AIs = {}
 super_AIs = {}
