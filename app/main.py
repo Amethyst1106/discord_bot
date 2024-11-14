@@ -32,18 +32,14 @@ safety_settings = [{
     "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
     "threshold": "BLOCK_NONE"
 }]
-default_config = genai.GenerationConfig(temperature=0.7)
 
 # Geminiモデルの設定
-nomal_model_name = "gemini-1.0-pro-latest"
 super_model_name = "gemini-1.5-pro-exp-0827"
-# flash_model_name = "gemini-1.5-flash-8b-exp-0924"
 flash_model_name = "gemini-1.5-flash-latest"
 
-nomal_AIs = {}
 super_AIs = {}
 flash_AIs = {}
-AIs_dic = {"flash" : flash_AIs, "super" : super_AIs, "nomal" : nomal_AIs}
+AIs_dic = {"flash" : flash_AIs, "super" : super_AIs}
 models_choice = [app_commands.Choice(name = model,  value = model)  for model  in AIs_dic.keys()]
 prompt_actions = ["reset", "show", "add", "delete"]
 prompt_choice = [app_commands.Choice(name = action, value = action) for action in prompt_actions]
@@ -75,9 +71,8 @@ async def on_ready():
     global is_ready
     if not is_ready:
         await tree.sync()
-        global nomal_AIs, super_AIs, flash_AIs
+        global super_AIs, flash_AIs
         for guild in client.guilds:
-            nomal_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=nomal_model_name, name = "通常モデル")
             super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル")
             flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル")
         loop.start()
