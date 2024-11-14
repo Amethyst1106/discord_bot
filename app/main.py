@@ -34,7 +34,7 @@ safety_settings = [{
 }]
 
 # Geminiモデルの設定
-super_model_name = "gemini-1.5-pro-exp-0827"
+super_model_name = "gemini-1.5-pro-latest"
 flash_model_name = "gemini-1.5-flash-latest"
 
 super_AIs = {}
