@@ -42,6 +42,7 @@ flash_AIs = {}
 super_AIs = {}
 exp_AIs   = {}
 AIs_dic = {"flash" : flash_AIs, "super" : super_AIs, "exp" : exp_AIs}
+default_AI_key = "exp"
 
 models_choice = [app_commands.Choice(name = model,  value = model)  for model  in AIs_dic.keys()]
 prompt_actions = ["reset", "show", "add", "delete"]
@@ -108,7 +109,7 @@ async def loop():
 async def chat(interaction: discord.Interaction, 
                 text: str, 
                 file: discord.Attachment = None,
-                model: str = "flash"):
+                model: str = default_AI_key):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -127,7 +128,7 @@ async def chat(interaction: discord.Interaction,
 #履歴をリセット
 @tree.command(name="reset_history", description="記憶をリセットします")
 @app_commands.choices(model = models_choice)
-async def reset_history(interaction: discord.Interaction, model: str = "flash"):
+async def reset_history(interaction: discord.Interaction, model: str = default_AI_key):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -137,7 +138,7 @@ async def reset_history(interaction: discord.Interaction, model: str = "flash"):
 #プロンプト
 @tree.command(name="prompt", description="命令についてのコマンド")
 @app_commands.choices(model = models_choice, action = prompt_choice)
-async def prompt(interaction: discord.Interaction, action:str, prompt: str =  "", index: int = 0 , model: str = "flash"):
+async def prompt(interaction: discord.Interaction, action:str, prompt: str =  "", index: int = 0 , model: str = default_AI_key):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -155,7 +156,7 @@ async def prompt(interaction: discord.Interaction, action:str, prompt: str =  ""
 @tree.command(name="config", description="コンフィグについてのコマンド")
 @app_commands.choices(model = models_choice, action = config_choice)
 async def config(interaction: discord.Interaction,
-                        action:str, temperature: float = None, model: str = "flash"):
+                        action:str, temperature: float = None, model: str = default_AI_key):
     await interaction.response.defer()
     guild_id = interaction.guild_id
     chat_ai = AIs_dic[model][guild_id]
@@ -170,7 +171,7 @@ async def config(interaction: discord.Interaction,
 async def wikipedia(interaction: discord.Interaction, word: str, order: str = "", length: int = 300):
     await interaction.response.defer()
     guild_id = interaction.guild_id
-    chat_ai = AIs_dic["flash"][guild_id]
+    chat_ai = AIs_dic[default_AI_key][guild_id]
     search_result = search.get_wikipedia_text(word)
     page_title = search_result[0]
     name = interaction.user.display_name
@@ -203,7 +204,7 @@ async def summarize(interaction: discord.Interaction, url: str, order: str = "",
     await interaction.response.defer()
     name = interaction.user.display_name
     guild_id = interaction.guild_id
-    chat_ai = AIs_dic["flash"][guild_id]
+    chat_ai = AIs_dic[default_AI_key][guild_id]
     try:
         html = await fetch_html(url)
         summary = await chat_ai.get_summary(html, order, length)
