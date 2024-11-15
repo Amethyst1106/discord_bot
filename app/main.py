@@ -34,12 +34,15 @@ safety_settings = [{
 }]
 
 # Geminiモデルの設定
-super_model_name = "gemini-1.5-pro-latest"
 flash_model_name = "gemini-1.5-flash-latest"
+super_model_name = "gemini-1.5-pro-latest"
+exp_model_name   = "gemini-exp-1114"
 
-super_AIs = {}
 flash_AIs = {}
-AIs_dic = {"flash" : flash_AIs, "super" : super_AIs}
+super_AIs = {}
+exp_AIs   = {}
+AIs_dic = {"flash" : flash_AIs, "super" : super_AIs, "exp" : exp_AIs}
+
 models_choice = [app_commands.Choice(name = model,  value = model)  for model  in AIs_dic.keys()]
 prompt_actions = ["reset", "show", "add", "delete"]
 prompt_choice = [app_commands.Choice(name = action, value = action) for action in prompt_actions]
@@ -71,10 +74,11 @@ async def on_ready():
     global is_ready
     if not is_ready:
         await tree.sync()
-        global super_AIs, flash_AIs
+        global super_AIs, flash_AIs, exp_AIs
         for guild in client.guilds:
-            super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル")
             flash_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=flash_model_name, name = "高速モデル")
+            super_AIs[guild.id] = ai.ChatAI(guild_id=guild.id, version=super_model_name, name = "上位モデル")
+            exp_AIs[guild.id]   = ai.ChatAI(guild_id=guild.id, version=exp_model_name  , name = "試験モデル")
         loop.start()
         logger.error('{0.user} がログインしたよ'.format(client))
         is_ready = True

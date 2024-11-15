@@ -1,9 +1,10 @@
 ﻿import json
+from logging import getLogger
+
+import discord
 import google.generativeai as genai
 from search import fetch_html
 from tools import form_question, get_image_file, upload_file
-from logging import getLogger
-import discord
 
 logger = getLogger(__name__)
 
@@ -49,8 +50,6 @@ class ChatAI:
         self.loging_info()
         logger.error("質問受付")
         logger.error("質問 : " + text)
-        if self.name == "通常モデル" and (file is not None):
-            return "旧モデルでファイルは扱えません", None
         name = interaction.user.display_name
         text_file = None
         result = ""
