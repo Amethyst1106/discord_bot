@@ -172,10 +172,12 @@ async def wikipedia(interaction: discord.Interaction, word: str, order: str = ""
     name = interaction.user.display_name
     if page_title:
         try:
+            summary = await chat_ai.get_summary(search_result[1], order, length)\
+                        .replace("。", "。\n").replace("\n\n\n", "\n\n")
             result = form_question(name, f"{word}" + (f"\n{order}" if order else ""))\
                     + f"項目名：{page_title}\n"\
                     + f"<{search_result[2]}>\n"\
-                    + await chat_ai.get_summary(search_result[1], order, length)
+                    + summary
         except genai.types.StopCandidateException as e:
             result = form_question(name, word)\
                     + f"項目名：{page_title}\n" + f"<{search_result[2]}>\n"\
